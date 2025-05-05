@@ -1,6 +1,8 @@
 import express, { Request, Response } from 'express';
 import cors from 'cors';
+import cookieParser from 'cookie-parser';
 import goalRoutes from './routes/goalRoutes';
+import authRoutes from './routes/authRoutes';
 
 // Initialize express app
 const app = express();
@@ -8,6 +10,7 @@ const app = express();
 // Middleware
 app.use(cors());
 app.use(express.json());
+app.use(cookieParser());
 
 // Routes
 app.get('/api/health', (req: Request, res: Response) => {
@@ -15,5 +18,6 @@ app.get('/api/health', (req: Request, res: Response) => {
 });
 
 app.use('/api/goals', goalRoutes);
+app.use('/api/auth', authRoutes);
 
 export default app; 
