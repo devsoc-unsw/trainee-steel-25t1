@@ -61,27 +61,3 @@ Drift is a productivity app that helps users break down long-term goals into sma
    ```
 
 3. Open your browser and visit `http://localhost:3000` to see the application.
-
-## Features
-
-- User authentication
-- Create and manage long-term goals
-- Break down goals into actionable steps
-- Schedule steps into a personalized timetable
-- Track progress
-- Receive reminders
-
-## Project Structure
-
-```
-drift/
-├── client/             # React frontend (CRA + TypeScript)
-├── server/             # Express backend (TypeScript)
-│   ├── models/         # Mongoose models
-│   ├── routes/         # Express routes
-│   ├── controllers/    # Business logic
-│   └── index.ts        # Entry point
-├── .env                # Environment variables
-├── .gitignore
-└── README.md
-``` 
