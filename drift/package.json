@@ -19,5 +19,8 @@
   "license": "ISC",
   "devDependencies": {
     "concurrently": "^8.0.1"
+  },
+  "dependencies": {
+    "lucide-react": "^0.509.0"
   }
-} 
+}
