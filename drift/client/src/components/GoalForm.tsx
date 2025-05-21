@@ -42,7 +42,7 @@ const GoalForm: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const response = await axios.post('http://localhost:5000/api/goals', formData);
+      const response = await axios.post(`${process.env.REACT_APP_API_URL}/api/goals`, formData);
       setMessage('Goal created successfully!');
       // Reset form
       setFormData({

@@ -3,6 +3,7 @@ import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import goalRoutes from './routes/goalRoutes';
 import authRoutes from './routes/authRoutes';
+import openaiRoutes from './routes/openaiRoutes';
 
 // Initialize express app
 const app = express();
@@ -19,5 +20,6 @@ app.get('/api/health', (req: Request, res: Response) => {
 
 app.use('/api/goals', goalRoutes);
 app.use('/api/auth', authRoutes);
+app.use('/api/openai', openaiRoutes);
 
 export default app; 
