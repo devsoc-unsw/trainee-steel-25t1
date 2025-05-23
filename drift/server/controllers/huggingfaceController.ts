@@ -10,6 +10,7 @@ export const generateSchedule = async (req: Request, res: Response) => {
   }
 
   // Compose a prompt for the AI model
+  const model = "deepseek-ai/DeepSeek-R1"
   const prompt = `Create a detailed schedule to achieve the following goal: "${goal}".
   Start date: ${startDate}
   End date: ${endDate}
@@ -18,7 +19,7 @@ export const generateSchedule = async (req: Request, res: Response) => {
 
   try {
     const response = await axios.post(
-      'https://api-inference.huggingface.co/models/bigscience/bloomz-560m', // Or another text-generation model
+      'https://api-inference.huggingface.co/models/gpt2',
       { inputs: prompt },
       {
         headers: {
