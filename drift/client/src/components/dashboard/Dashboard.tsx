@@ -1,96 +1,105 @@
-import React, { useEffect, useState } from "react";
-import {
-  BarChart3,
-  Calendar,
-  ChevronLeft,
-  ChevronRight,
-  Home,
-  LogOut,
-  Menu,
-  PlusCircle,
-  Settings,
-  Target,
-  Users,
-} from "lucide-react";
-import DriftLogo from "../../assets/drift_logo.svg";
-import {
-  Routes,
-  Route,
-  useNavigate,
-  useLocation,
-  Link,
-} from "react-router-dom";
+"use client"
 
-import Goals from "./Goals";
-import CalendarPage from "./CalendarPage";
-import SettingsPage from "./SettingsPage";
+import type React from "react"
+import { useEffect, useState } from "react"
+import { BarChart3, Calendar, ChevronLeft, ChevronRight, Home, LogOut, Menu, Settings, Target } from "lucide-react"
+import DriftLogo from "../../assets/drift_logo.svg"
+import { Routes, Route, useNavigate, useLocation, Link } from "react-router-dom"
+
+import Goals from "./Goals"
+import CalendarPage from "./CalendarPage"
+import SettingsPage from "./SettingsPage"
+
+// Simple FloatingBoat component
+const FloatingBoat = () => {
+  return (
+    <div className="relative">
+      {/* Water reflection effect */}
+      <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-48 h-8 bg-gradient-to-r from-transparent via-white/30 to-transparent rounded-full blur-md animate-waterPulse"></div>
+
+      {/* Boat with floating animation */}
+      <div className="relative animate-floating">
+        <img src={DriftLogo || "/placeholder.svg"} alt="Drift logo" className="h-40 w-40" />
+      </div>
+    </div>
+  )
+}
 
 interface GoalFormData {
-  objective: string;
-  deadline: string;
-  dedication: string;
+  objective: string
+  startDate: string
+  endDate: string
+  hoursPerDay: string
 }
 
 const Dashboard = () => {
-  const [username, setUsername] = useState("");
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [username, setUsername] = useState("")
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [formData, setFormData] = useState<GoalFormData>({
-    objective: '',
-    deadline: '',
-    dedication: ''
-  });
-  const navigate = useNavigate();
-  const location = useLocation();
+    objective: "",
+    startDate: "",
+    endDate: "",
+    hoursPerDay: "",
+  })
+  const navigate = useNavigate()
+  const location = useLocation()
 
   useEffect(() => {
-    const token = localStorage.getItem("userToken");
-    const name = localStorage.getItem("userName");
+    const token = localStorage.getItem("userToken")
+    const name = localStorage.getItem("userName")
     if (!token) {
-      navigate("/login");
-      return;
+      navigate("/login")
+      return
     }
-    setUsername(name || "User");
-    const savedSidebarState = localStorage.getItem("sidebarCollapsed");
-    if (savedSidebarState) setSidebarCollapsed(savedSidebarState === "true");
-    else setSidebarCollapsed(window.innerWidth < 768);
+    setUsername(name || "User")
+    const savedSidebarState = localStorage.getItem("sidebarCollapsed")
+    if (savedSidebarState) setSidebarCollapsed(savedSidebarState === "true")
+    else setSidebarCollapsed(window.innerWidth < 768)
 
     const handleResize = () => {
-      if (window.innerWidth < 768) setMobileMenuOpen(false);
-    };
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, [navigate]);
+      if (window.innerWidth < 768) setMobileMenuOpen(false)
+    }
+    window.addEventListener("resize", handleResize)
+    return () => window.removeEventListener("resize", handleResize)
+  }, [navigate])
 
   const handleLogout = () => {
-    localStorage.removeItem("userToken");
-    localStorage.removeItem("userName");
-    navigate("/");
-  };
+    localStorage.removeItem("userToken")
+    localStorage.removeItem("userName")
+    navigate("/")
+  }
 
   const toggleSidebar = () => {
-    const newState = !sidebarCollapsed;
-    setSidebarCollapsed(newState);
-    localStorage.setItem("sidebarCollapsed", String(newState));
-  };
+    const newState = !sidebarCollapsed
+    setSidebarCollapsed(newState)
+    localStorage.setItem("sidebarCollapsed", String(newState))
+  }
 
-  const toggleMobileMenu = () => setMobileMenuOpen(!mobileMenuOpen);
+  const toggleMobileMenu = () => setMobileMenuOpen(!mobileMenuOpen)
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
+    const { name, value } = e.target
+    setFormData((prev) => ({
       ...prev,
-      [name]: value
-    }));
-  };
+      [name]: value,
+    }))
+  }
 
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+    e.preventDefault()
+
+    // Basic validation
+    if (!formData.objective || !formData.startDate || !formData.endDate || !formData.hoursPerDay) {
+      return // Don't submit if missing required fields
+    }
+
     // Store form data in localStorage temporarily
-    localStorage.setItem('goalData', JSON.stringify(formData));
+    localStorage.setItem("goalData", JSON.stringify(formData))
+
     // Navigate to schedule page
-    navigate('/schedule');
-  };
+    navigate("/schedule")
+  }
 
   const navItems = [
     { name: "Dashboard", icon: Home, path: "/dashboard" },
@@ -98,18 +107,14 @@ const Dashboard = () => {
     { name: "Calendar", icon: Calendar, path: "/dashboard/calendar" },
     { name: "Placeholder", icon: BarChart3, path: "" },
     { name: "Settings", icon: Settings, path: "/dashboard/settings" },
-  ];
+  ]
 
   return (
-    <div className="flex h-screen bg-gray-50">
+    <div className="flex h-screen bg-gradient-to-b from-drift-orange via-drift-pink to-drift-blue">
       <aside
         className={`fixed inset-y-0 left-0 z-20 flex flex-col bg-drift-blue transition-all duration-300 ease-in-out ${
           sidebarCollapsed ? "w-20" : "w-64"
-        } ${
-          mobileMenuOpen
-            ? "translate-x-0"
-            : "-translate-x-full md:translate-x-0"
-        }`}
+        } ${mobileMenuOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"}`}
       >
         <div
           className={`flex h-16 items-center ${
@@ -117,10 +122,8 @@ const Dashboard = () => {
           } border-b border-drift-purple/30 px-4`}
         >
           <div className="flex items-center space-x-3">
-            <img src={DriftLogo} alt="Drift logo" className="h-12 w-12" />
-            {!sidebarCollapsed && (
-              <span className="text-xl font-bold text-white">Drift</span>
-            )}
+            <img src={DriftLogo || "/placeholder.svg"} alt="Drift logo" className="h-12 w-12" />
+            {!sidebarCollapsed && <span className="text-xl font-bold text-white">Drift</span>}
           </div>
           {!sidebarCollapsed && (
             <button
@@ -150,18 +153,12 @@ const Dashboard = () => {
                   : "text-white/80 hover:bg-drift-purple/40 hover:text-white"
               } ${sidebarCollapsed ? "justify-center" : ""}`}
             >
-              <item.icon
-                className={`h-5 w-5 ${sidebarCollapsed ? "" : "mr-3"}`}
-              />
+              <item.icon className={`h-5 w-5 ${sidebarCollapsed ? "" : "mr-3"}`} />
               {!sidebarCollapsed && <span>{item.name}</span>}
             </Link>
           ))}
         </nav>
-        <div
-          className={`border-t border-drift-purple/30 p-4 ${
-            sidebarCollapsed ? "flex justify-center" : ""
-          }`}
-        >
+        <div className={`border-t border-drift-purple/30 p-4 ${sidebarCollapsed ? "flex justify-center" : ""}`}>
           {sidebarCollapsed ? (
             <div className="group relative">
               <div className="h-10 w-10 cursor-pointer rounded-full bg-drift-mauve flex items-center justify-center text-white font-medium shadow-md">
@@ -195,107 +192,102 @@ const Dashboard = () => {
           )}
         </div>
       </aside>
-      <div
-        className={`flex flex-1 flex-col transition-all duration-300 ${
-          sidebarCollapsed ? "md:ml-20" : "md:ml-64"
-        }`}
-      >
-        <header className="sticky top-0 z-10 bg-white shadow-sm">
-          <div className="flex h-16 items-center justify-between px-4">
-            <button
-              onClick={toggleMobileMenu}
-              className="mr-2 rounded-md p-2 text-drift-blue hover:bg-gray-100 md:hidden"
-            >
-              <Menu className="h-6 w-6" />
+      <div className={`flex flex-1 flex-col transition-all duration-300 ${sidebarCollapsed ? "md:ml-20" : "md:ml-64"}`}>
+        <header className="sticky top-0 z-10 bg-transparent">
+          <div className="flex h-12 items-center px-4 md:px-6">
+            <button onClick={toggleMobileMenu} className="rounded-md p-2 text-white hover:bg-white/10 md:hidden">
+              <Menu className="h-5 w-5" />
             </button>
-            <div className="flex items-center space-x-4">
-              <button className="flex items-center rounded-lg bg-drift-orange px-3 py-2 text-sm font-medium text-white shadow-md hover:bg-drift-orange/90 transition-all hover:shadow-lg">
-                <PlusCircle className="mr-2 h-4 w-4" />
-                <span>New Goal</span>
-              </button>
-            </div>
           </div>
         </header>
-        <main className="flex-1 overflow-y-auto p-4 md:p-6">
+        <main className="flex-1 overflow-y-auto p-4 md:p-6 pt-0 md:pt-2">
           <Routes>
             <Route
               path="/"
               element={
-                <div className="max-w-4xl mx-auto">
-                  <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-                    <h2 className="text-2xl font-bold text-drift-purple mb-2">
-                      Hello, {username}!
-                    </h2>
-                    <p className="text-gray-600 mb-6">
-                      Let's create a personalized schedule to help you achieve your goals.
-                    </p>
-                    
-                    <form onSubmit={handleSubmit} className="space-y-6">
-                      <div className="space-y-4">
-                        <h3 className="text-xl font-semibold text-drift-blue">Let's Get Started</h3>
-                        
-                        <div className="space-y-2">
-                          <label htmlFor="objective" className="block text-lg font-medium text-gray-700">
-                            1. What do you want to achieve?
-                          </label>
-                          <textarea
-                            id="objective"
-                            name="objective"
-                            value={formData.objective}
-                            onChange={handleChange}
-                            required
-                            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-drift-blue focus:border-drift-blue"
-                            rows={3}
-                            placeholder="Describe your goal in detail..."
-                          />
-                        </div>
+                <div className="max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-center min-h-[80vh]">
+                  <div className="w-full md:w-1/2 p-6 pt-2">
+                    <div className="space-y-8 text-white">
+                      <div className="space-y-5">
+                        <h2 className="text-3xl font-bold">What do you want to acheive?</h2>
+                        <input
+                          type="text"
+                          name="objective"
+                          value={formData.objective}
+                          onChange={handleChange}
+                          placeholder="describe your goal"
+                          className="w-full px-5 py-4 rounded-md bg-white/20 backdrop-blur-sm text-white placeholder-white/60 border border-white/30 focus:outline-none focus:ring-2 focus:ring-white/50 text-lg"
+                        />
+                      </div>
 
-                        <div className="space-y-2">
-                          <label htmlFor="deadline" className="block text-lg font-medium text-gray-700">
-                            2. When do you want to achieve this by?
-                          </label>
-                          <input
-                            type="date"
-                            id="deadline"
-                            name="deadline"
-                            value={formData.deadline}
-                            onChange={handleChange}
-                            required
-                            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-drift-blue focus:border-drift-blue"
-                            min={new Date().toISOString().split('T')[0]}
-                          />
-                        </div>
+                      <div className="space-y-5">
+                        <h2 className="text-2xl font-medium">When do you want to achieve this by?</h2>
+                        <div className="flex flex-wrap gap-4">
+                          <div className="flex flex-col space-y-1 flex-grow">
+                            <label htmlFor="startDate" className="text-sm opacity-80">
+                              Start date
+                            </label>
+                            <input
+                              type="date"
+                              id="startDate"
+                              name="startDate"
+                              value={formData.startDate}
+                              onChange={handleChange}
+                              className="px-6 py-3 bg-drift-blue/40 text-white rounded-md hover:bg-drift-blue/60 transition-colors text-lg focus:outline-none focus:ring-2 focus:ring-white/50 border-none"
+                            />
+                          </div>
 
-                        <div className="space-y-2">
-                          <label htmlFor="dedication" className="block text-lg font-medium text-gray-700">
-                            3. How dedicated are you?
-                          </label>
-                          <select
-                            id="dedication"
-                            name="dedication"
-                            value={formData.dedication}
-                            onChange={handleChange}
-                            required
-                            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-drift-blue focus:border-drift-blue"
-                          >
-                            <option value="">Select your dedication level</option>
-                            <option value="casual">Casual - I can spare a few hours per week</option>
-                            <option value="moderate">Moderate - I can work on this regularly</option>
-                            <option value="serious">Serious - This is a top priority for me</option>
-                            <option value="intense">Intense - I'm fully committed to this goal</option>
-                          </select>
+                          <div className="flex flex-col space-y-1 flex-grow">
+                            <label htmlFor="endDate" className="text-sm opacity-80">
+                              End date
+                            </label>
+                            <input
+                              type="date"
+                              id="endDate"
+                              name="endDate"
+                              value={formData.endDate}
+                              onChange={handleChange}
+                              className="px-6 py-3 bg-drift-blue/40 text-white rounded-md hover:bg-drift-blue/60 transition-colors text-lg focus:outline-none focus:ring-2 focus:ring-white/50 border-none"
+                            />
+                          </div>
                         </div>
                       </div>
 
-                      <div className="pt-4">
-                        <button
-                          type="submit"
-                          className="w-full bg-drift-mauve hover:bg-purple-700 text-white py-3 px-6 rounded-md text-lg font-medium transition-colors duration-200"
-                        >
-                          Make it happen
-                        </button>
+                      <div className="space-y-5">
+                        <h2 className="text-2xl font-medium">How dedicated are you?</h2>
+                        <input
+                          type="text"
+                          name="hoursPerDay"
+                          value={formData.hoursPerDay}
+                          onChange={handleChange}
+                          placeholder="number of hours per day"
+                          className="w-full px-5 py-4 rounded-md bg-white/20 backdrop-blur-sm text-white placeholder-white/60 border border-white/30 focus:outline-none focus:ring-2 focus:ring-white/50 text-lg"
+                        />
                       </div>
-                    </form>
+                    </div>
+                  </div>
+
+                  <div className="w-full md:w-1/2 flex flex-col items-center justify-center relative py-8">
+                    <div className="mb-10">
+                      {/* Replace static logo with animated floating boat */}
+                      <FloatingBoat />
+                    </div>
+
+                    <button
+                      onClick={handleSubmit}
+                      className="px-8 py-5 bg-white/20 backdrop-blur-sm text-white rounded-full text-xl font-medium hover:bg-white/30 transition-colors w-72 shadow-lg"
+                      disabled={
+                        !formData.objective || !formData.startDate || !formData.endDate || !formData.hoursPerDay
+                      }
+                    >
+                      Make It Happen
+                    </button>
+
+                    <div className="mt-20 flex items-center justify-center">
+                      <div className="h-12 w-12 rounded-full bg-drift-orange flex items-center justify-center">
+                        <span className="text-white font-bold text-lg">D</span>
+                      </div>
+                    </div>
                   </div>
                 </div>
               }
@@ -307,13 +299,10 @@ const Dashboard = () => {
         </main>
       </div>
       {mobileMenuOpen && (
-        <div
-          className="fixed inset-0 z-10 bg-black bg-opacity-50 md:hidden"
-          onClick={toggleMobileMenu}
-        ></div>
+        <div className="fixed inset-0 z-10 bg-black bg-opacity-50 md:hidden" onClick={toggleMobileMenu}></div>
       )}
     </div>
-  );
-};
+  )
+}
 
-export default Dashboard;
+export default Dashboard
