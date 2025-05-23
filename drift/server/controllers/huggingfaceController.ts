@@ -1,7 +1,9 @@
 import { Request, Response } from 'express';
-import axios from 'axios';
+import { InferenceClient } from "@huggingface/inference";
 
 const HF_API_TOKEN = process.env.HF_API_TOKEN || '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';
+
+const client = new InferenceClient(HF_API_TOKEN);
 
 export const generateSchedule = async (req: Request, res: Response) => {
   const { goal, startDate, endDate, intensity } = req.body;
@@ -10,25 +12,26 @@ export const generateSchedule = async (req: Request, res: Response) => {
   }
 
   // Compose a prompt for the AI model
-  const model = "deepseek-ai/DeepSeek-R1"
   const prompt = `Create a detailed schedule to achieve the following goal: "${goal}".
-  Start date: ${startDate}
-  End date: ${endDate}
-  Intensity: ${intensity}
-  Please break down the goal into actionable steps and distribute them over the given time period.`;
+Start date: ${startDate}
+End date: ${endDate}
+Intensity: ${intensity}
+Please break down the goal into actionable steps and distribute them over the given time period.`;
 
   try {
-    const response = await axios.post(
-      'https://api-inference.huggingface.co/models/gpt2',
-      { inputs: prompt },
-      {
-        headers: {
-          Authorization: `Bearer ${HF_API_TOKEN}`,
-          'Content-Type': 'application/json',
+    const chatCompletion = await client.chatCompletion({
+      provider: "fireworks-ai",
+      model: "deepseek-ai/DeepSeek-R1",
+      messages: [
+        {
+          role: "user",
+          content: prompt,
         },
-      }
-    );
-    res.json({ schedule: response.data[0]?.generated_text || 'No schedule returned' });
+      ],
+    });
+
+    const message = chatCompletion.choices?.[0]?.message?.content || 'No schedule returned';
+    res.json({ schedule: message });
   } catch (error: any) {
     res.status(500).json({ message: 'Hugging Face API error', error: error.message });
   }
