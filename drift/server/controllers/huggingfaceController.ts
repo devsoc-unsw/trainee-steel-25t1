@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import axios from 'axios';
 
-const HF_API_TOKEN = process.env.HF_API_TOKEN || 'token stored in env';
+const HF_API_TOKEN = process.env.HF_API_TOKEN || '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';
 
 export const generateSchedule = async (req: Request, res: Response) => {
   const { goal, startDate, endDate, intensity } = req.body;
