@@ -4,6 +4,7 @@ import type React from "react"
 import { useEffect, useState } from "react"
 import { BarChart3, Calendar, ChevronLeft, ChevronRight, Home, LogOut, Menu, Settings, Target } from "lucide-react"
 import DriftLogo from "../../assets/drift_logo.svg"
+import MakeItHappenFloat from "../../assets/makeithappen_float.svg"
 import { Routes, Route, useNavigate, useLocation, Link } from "react-router-dom"
 
 import Goals from "./Goals"
@@ -13,17 +14,114 @@ import SettingsPage from "./SettingsPage"
 // Simple FloatingBoat component
 const FloatingBoat = () => {
   return (
-    <div className="relative">
-      {/* Water reflection effect */}
-      <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-48 h-8 bg-gradient-to-r from-transparent via-white/30 to-transparent rounded-full blur-md animate-waterPulse"></div>
-
-      {/* Boat with floating animation */}
-      <div className="relative animate-floating">
+    <div className="relative flex flex-col items-center">
+      {/* Wind effects */}
+      <div className="absolute z-10 w-full h-full overflow-hidden pointer-events-none">
+        <div className="absolute left-0 top-1/4 w-16 h-[1px] bg-gradient-to-r from-white/0 via-white/30 to-white/0 animate-windGust1"></div>
+        <div className="absolute right-5 top-1/3 w-12 h-[1px] bg-gradient-to-r from-white/0 via-white/20 to-white/0 animate-windGust2"></div>
+        <div className="absolute left-10 top-2/3 w-14 h-[1px] bg-gradient-to-r from-white/0 via-white/25 to-white/0 animate-windGust3"></div>
+      </div>
+      
+      {/* Boat with wind-drift animation */}
+      <div className="relative animate-windDrift">
         <img src={DriftLogo || "/placeholder.svg"} alt="Drift logo" className="h-40 w-40" />
+      </div>
+      
+      {/* Natural water with curved edges - moved closer to boat */}
+      <div className="w-full -mt-4 overflow-visible">
+        {/* Organic water surface with irregular edges */}
+        <div className="relative h-3 overflow-visible">
+          {/* Main water curve - reduced height */}
+          <div className="absolute left-1/2 -translate-x-1/2 w-48 h-3 overflow-hidden">
+            <div className="w-48 h-6 rounded-[100%] bg-gradient-to-b from-white/10 to-transparent"></div>
+          </div>
+          
+          {/* Irregular ripple effects */}
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-52">
+            <div className="w-full h-[2px] bg-gradient-to-r from-transparent via-white/40 to-transparent rounded-[100%] animate-ripple transform-gpu"></div>
+          </div>
+          
+          {/* Smaller natural waves */}
+          <div className="absolute top-1 left-[40%] w-16 h-[1px]">
+            <div className="w-full h-full bg-gradient-to-r from-transparent via-white/30 to-transparent rounded-full animate-tinyWave1"></div>
+          </div>
+          <div className="absolute top-1 right-[42%] w-14 h-[1px]">
+            <div className="w-full h-full bg-gradient-to-r from-transparent via-white/25 to-transparent rounded-full animate-tinyWave2"></div>
+          </div>
+          
+          {/* Small glistening highlights */}
+          <div className="absolute top-0 left-[30%] w-1 h-1 bg-white/40 rounded-full animate-glisten1"></div>
+          <div className="absolute top-1 right-[35%] w-[2px] h-[2px] bg-white/50 rounded-full animate-glisten2"></div>
+        </div>
+        
+        {/* Boat reflection with natural water distortion - moved up */}
+        <div className="relative flex justify-center -mt-11">
+          {/* The reflection itself */}
+          <div className="animate-reflectionWind">
+            <img 
+              src={DriftLogo || "/placeholder.svg"} 
+              alt="Reflection" 
+              className="h-40 w-40 scale-y-[-1] opacity-40 blur-[1px]" 
+            />
+          </div>
+          
+          {/* Water movement lines */}
+          <div className="absolute inset-0 flex flex-col justify-around pointer-events-none">
+            <div className="h-[1px] w-full bg-gradient-to-r from-transparent via-white/15 to-transparent rounded-full animate-waveSlowA"></div>
+            <div className="h-[1px] w-3/4 mx-auto bg-gradient-to-r from-white/10 via-transparent to-white/10 rounded-full animate-waveSlowB"></div>
+            <div className="h-[1px] w-4/5 ml-auto bg-gradient-to-r from-transparent via-white/10 to-transparent rounded-full animate-waveFast"></div>
+            <div className="h-[1px] w-2/3 mr-auto bg-gradient-to-r from-white/5 via-white/10 to-white/5 rounded-full animate-waveMed"></div>
+          </div>
+        </div>
       </div>
     </div>
   )
 }
+
+// Magical Make It Happen Button component
+interface MagicalButtonProps {
+  onClick: (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void;
+  disabled: boolean;
+}
+
+const MagicalButton: React.FC<MagicalButtonProps> = ({ onClick, disabled }) => {
+  return (
+    <div className="relative">
+      {/* Floating magical elements */}
+      <div className="absolute inset-0 -top-8 -left-6 -right-6 -bottom-8 pointer-events-none">
+        <img 
+          src={MakeItHappenFloat} 
+          alt="Magical elements" 
+          className="w-full h-full object-contain animate-magicalFloat opacity-80"
+        />
+      </div>
+      
+      {/* Glowing effects */}
+      <div className="absolute inset-0 rounded-full bg-white/10 blur-md animate-glow"></div>
+      
+      {/* Sparkles */}
+      <div className="absolute -top-2 left-1/4 w-1 h-1 bg-white rounded-full animate-sparkle1"></div>
+      <div className="absolute -top-3 left-2/3 w-2 h-2 bg-white rounded-full animate-sparkle2"></div>
+      <div className="absolute -bottom-2 right-1/4 w-1.5 h-1.5 bg-white rounded-full animate-sparkle3"></div>
+      
+      {/* Button itself */}
+      <button
+        onClick={onClick}
+        disabled={disabled}
+        className="relative px-8 py-5 bg-white/20 backdrop-blur-md text-white rounded-full text-xl font-medium 
+                  hover:bg-white/30 transition-all duration-300 w-72 shadow-lg
+                  disabled:opacity-50 disabled:cursor-not-allowed
+                  border border-white/30 z-10
+                  group"
+      >
+        <span className="relative z-10 group-hover:scale-105 transition-transform duration-300 inline-block">
+          Make It Happen
+        </span>
+        <div className="absolute inset-0 bg-gradient-to-r from-drift-pink/40 via-drift-purple/30 to-drift-orange/40 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+      </button>
+    </div>
+  );
+};
 
 interface GoalFormData {
   objective: string
@@ -273,21 +371,12 @@ const Dashboard = () => {
                       <FloatingBoat />
                     </div>
 
-                    <button
+                    <MagicalButton
                       onClick={handleSubmit}
-                      className="px-8 py-5 bg-white/20 backdrop-blur-sm text-white rounded-full text-xl font-medium hover:bg-white/30 transition-colors w-72 shadow-lg"
                       disabled={
                         !formData.objective || !formData.startDate || !formData.endDate || !formData.hoursPerDay
                       }
-                    >
-                      Make It Happen
-                    </button>
-
-                    <div className="mt-20 flex items-center justify-center">
-                      <div className="h-12 w-12 rounded-full bg-drift-orange flex items-center justify-center">
-                        <span className="text-white font-bold text-lg">D</span>
-                      </div>
-                    </div>
+                    />
                   </div>
                 </div>
               }
