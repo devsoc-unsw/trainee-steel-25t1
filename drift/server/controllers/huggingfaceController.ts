@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { InferenceClient } from "@huggingface/inference";
 
-const HF_API_TOKEN = process.env.HF_API_TOKEN || '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';
+const HF_API_TOKEN = process.env.HF_API_TOKEN || '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';
 
 const client = new InferenceClient(HF_API_TOKEN);
 
