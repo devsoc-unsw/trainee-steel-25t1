@@ -24,6 +24,7 @@ import {
 import Goals from "./Goals";
 import CalendarPage from "./CalendarPage";
 import SettingsPage from "./SettingsPage";
+import AchievementsArchive from "./achievements/AchievementsArchive";
 
 interface GoalFormData {
   objective: string;
@@ -97,6 +98,7 @@ const Dashboard = () => {
     { name: "Goals", icon: Target, path: "/dashboard/goals" },
     { name: "Calendar", icon: Calendar, path: "/dashboard/calendar" },
     { name: "Placeholder", icon: BarChart3, path: "" },
+    { name: "Achievements", icon: Users, path: "/dashboard/achievements" },
     { name: "Settings", icon: Settings, path: "/dashboard/settings" },
   ];
 
@@ -209,10 +211,12 @@ const Dashboard = () => {
               <Menu className="h-6 w-6" />
             </button>
             <div className="flex items-center space-x-4">
-              <button className="flex items-center rounded-lg bg-drift-orange px-3 py-2 text-sm font-medium text-white shadow-md hover:bg-drift-orange/90 transition-all hover:shadow-lg">
-                <PlusCircle className="mr-2 h-4 w-4" />
-                <span>New Goal</span>
-              </button>
+              {!location.pathname.includes("achievements") && (
+                <button className="flex items-center rounded-lg bg-drift-orange px-3 py-2 text-sm font-medium text-white shadow-md hover:bg-drift-orange/90 transition-all hover:shadow-lg">
+                  <PlusCircle className="mr-2 h-4 w-4" />
+                  <span>New Goal</span>
+                </button>
+              )}
             </div>
           </div>
         </header>
@@ -301,6 +305,7 @@ const Dashboard = () => {
             />
             <Route path="goals" element={<Goals />} />
             <Route path="calendar" element={<CalendarPage />} />
+            <Route path="achievements" element={<AchievementsArchive />} />
             <Route path="settings" element={<SettingsPage />} />
           </Routes>
         </main>
