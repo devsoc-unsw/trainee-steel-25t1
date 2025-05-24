@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import AuthBackgroundWrapper from '../AuthBackgroundWrapper';
 
 const Register: React.FC = () => {
   const [formData, setFormData] = useState({
@@ -39,7 +40,7 @@ const Register: React.FC = () => {
       // Store token in localStorage
       localStorage.setItem('userToken', response.data.token);
       localStorage.setItem('userName', response.data.username);
-      
+
       // Redirect to dashboard
       navigate('/dashboard');
     } catch (err: any) {
@@ -50,15 +51,14 @@ const Register: React.FC = () => {
   };
 
   return (
-    <div className="max-w-md mx-auto my-8 p-6 bg-white rounded-lg shadow-md">
+    <AuthBackgroundWrapper>
+    <div className="w-full max-w-md mx-auto my-8 p-6 bg-white rounded-lg shadow-md">
       <h2 className="text-2xl font-bold mb-6 text-center text-drift-blue">Create an Account</h2>
-      
       {error && (
         <div className="mb-4 p-3 bg-red-100 text-red-700 rounded-md">
           {error}
         </div>
       )}
-      
       <form onSubmit={handleSubmit}>
         <div className="mb-4">
           <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="username">
@@ -137,6 +137,7 @@ const Register: React.FC = () => {
         </div>
       </form>
     </div>
+    </AuthBackgroundWrapper>
   );
 };
 
