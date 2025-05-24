@@ -9,7 +9,7 @@ import Home from "./components/Home";
 import Register from "./components/auth/Register";
 import Login from "./components/auth/Login";
 import Dashboard from "./components/dashboard/Dashboard";
-import Schedule from "./components/Schedule";
+import Schedule from "./components/ScheduleGenerator";
 
 const App: React.FC = () => {
   return (
