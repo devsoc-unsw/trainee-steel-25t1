@@ -34,9 +34,15 @@ const ScheduleGenerator: React.FC = () => {
         <p>Generating your schedule...</p>
       ) : (
         <div>
-          <h3>Your Goal:</h3>
+          <h3><b>Your Goal:</b></h3>
           <p>{goal}</p>
-          <h3>Schedule:</h3>
+          <h3><b>Start Date:</b></h3>
+          <p>{startDate}</p>
+          <h3><b>End Date:</b></h3>
+          <p>{endDate}</p>
+          <h3><b>Intensity:</b></h3>
+          <p>{intensity}</p>
+          <h3><b>Schedule:</b></h3>
           <pre>{schedule}</pre>
         </div>
       )}
