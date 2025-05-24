@@ -281,7 +281,6 @@ const Dashboard = () => {
                             <option value="">Select your dedication level</option>
                             <option value="casual">Casual - I can spare a few hours per week</option>
                             <option value="moderate">Moderate - I can work on this regularly</option>
-                            <option value="serious">Serious - This is a top priority for me</option>
                             <option value="intense">Intense - I'm fully committed to this goal</option>
                           </select>
                         </div>

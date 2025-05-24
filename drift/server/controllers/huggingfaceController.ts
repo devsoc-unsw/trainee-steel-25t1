@@ -25,76 +25,37 @@ export const generateSchedule = async (req: Request, res: Response) => {
 
 const prompt = `
 
-Important Output Instructions:
+You are a daily goal planner AI.
 
-Do ALL of your thinking behind the scene, I only want to see the final output of JSON objects
-
-DO NOT include any explanation, preamble, or commentary.
-
-ONLY return a raw JSON array of daily plans.
-
-No markdown formatting 
-
-Each date must be accurate based on the real calendar.
-
-Assume the user is fully aware of the goal difficulty. Just generate the best possible schedule for the timeframe.
-
-
-I want you to act as a daily goal planner AI assistant.
-Based on the following user input:
+Based on the following:
 
 Goal: ${goal}
-
 Start Date: ${todayDate}
-
 End Date: ${endDate}
+Intensity: ${intensity}
 
-Intensity Level: ${intensity}
+Generate a day-by-day schedule from start to end date.
 
-Please create a comprehensive daily schedule, broken down Monday to Sunday, from the start date to the end date. Each day should have 2–4 small, specific tasks designed to help the user progressively achieve the goal.
+Each day must include 1–4 specific tasks, depending on intensity:
 
-The intensity level affects how demanding or time-consuming the tasks should be.
+- Casual: 1–2 light tasks/day
+- Moderate: 2–3 moderate tasks/day
+- Intense: 3–4 challenging tasks/day
 
-Low: 1–2 light, manageable tasks per day
+Format the output as:
+DayOfWeek, Month Day|task|task|...;
 
-Medium: 2–3 moderately challenging tasks
+Use this format exactly—no JSON, no markdown, no extra text.
 
-High: 3–4 challenging tasks requiring more time and effort
+Tasks must be helpful, clear, short, concise and goal-oriented.
+Only return the schedule.
 
-Important Output Format:
-
-The output must be in pure JSON object format, one JSON object per day.
-
-Each object should have a "date" field formatted as "DayOfWeek, Month Day", e.g., "Monday, May 26".
-
-Each object should have a "tasks" field, which is a list of individual tasks.
-
-Each task must be in this format:
-{"task": "taskDescription", "completion": "false"}
-
-The "completion" field should always be set to "false" by default.
-
-Example Output Structure:
-{
-  "date": "Monday, May 26",
-  "tasks": [
-    {"task": "taskDescription", "completion": "false"},
-    {"task": "taskDescription", "completion": "false"}
-  ]
-}
-Important Output Instructions (again):
-
-DO NOT include any explanation, preamble, or commentary.
-
-ONLY return a raw JSON array of daily plans.
-
-No markdown formatting 
-
-Each date must be accurate based on the real calendar.
-
-Assume the user is fully aware of the goal difficulty. Just generate the best possible schedule for the timeframe.
-
-`;
+For example:
+Monday, May 26|Research topic|Draft outline|Read supporting material;
+Tuesday, May 27|Write intro|Revise outline;
+Wednesday, May 28|Complete first draft|Peer review;
+`
+;
 
   try {
     const chatCompletion = await client.chatCompletion({
@@ -110,11 +71,13 @@ Assume the user is fully aware of the goal difficulty. Just generate the best po
 
     const rawOutput = chatCompletion.choices?.[0]?.message?.content || 'No schedule returned';
 
-    // Extract the first JSON array from the output
-    const jsonMatch = rawOutput.match(/\[\s*{[\s\S]*?}\s*\]/);
-    const schedule = jsonMatch ? jsonMatch[0] : '[]';
+    const thinkEndIndex = rawOutput.indexOf('</think>');
+    const schedule = thinkEndIndex !== -1
+      ? rawOutput.slice(thinkEndIndex + '</think>'.length).trim()
+      : rawOutput.trim();
 
     res.json({ schedule });
+
   } catch (error: any) {
     console.error('Hugging Face API error:', error); 
     res.status(500).json({ message: 'Hugging Face API error', error: error.message });
