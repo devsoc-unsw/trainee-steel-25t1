@@ -146,7 +146,7 @@ const ScheduleGenerator: React.FC = () => {
         <div className="text-center mb-8">
           <img src={DriftLogo} alt="Drift logo" className="h-16 w-16 mx-auto mb-4" />
           <h1 className="text-4xl font-bold text-white mb-2">Your Personalized Schedule</h1>
-          <p className="text-white/80 text-lg">AI-crafted plan to achieve your goals</p>
+          <p className="text-white/80 text-lg"> Drift's plan to achieve your goals</p>
         </div>
 
         {/* Goal Summary Card */}
@@ -299,22 +299,230 @@ const ScheduleGenerator: React.FC = () => {
               </table>
             </div>
 
-            {/* Overall Progress */}
+            {/* Tree Progress Visualization */}
             <div className="mt-8">
-              <h3 className="text-xl font-semibold text-white mb-4 text-center">Overall Progress</h3>
-              <div className="max-w-md mx-auto">
-                <div className="h-6 bg-white/20 rounded-full overflow-hidden mb-2">
-                  <div
-                    className={`h-full rounded-full transition-all duration-700 ${
-                      progress === 100 ? 'bg-green-400' : 'bg-gradient-to-r from-drift-orange to-drift-pink'
-                    }`}
-                    style={{ width: `${progress}%` }}
-                  />
+              <h3 className="text-xl font-semibold text-white mb-8 text-center">Your Growth Journey</h3>
+              <div className="max-w-lg mx-auto">
+                {/* Tree Container */}
+                <div className="relative flex flex-col items-center">
+                  {/* Tree Crown/Leaves */}
+                  <div className="relative mb-4">
+                    {/* Main tree crown */}
+                    <div className={`w-32 h-32 rounded-full transition-all duration-1000 ${
+                      progress === 100 ? 'bg-gradient-to-br from-emerald-300 via-green-400 to-emerald-600 shadow-2xl shadow-emerald-400/60 animate-tree-complete' :
+                      progress >= 80 ? 'bg-gradient-to-br from-green-400 via-green-500 to-emerald-600 shadow-lg shadow-green-400/40' :
+                      progress >= 60 ? 'bg-gradient-to-br from-yellow-400 via-green-400 to-green-500 shadow-lg shadow-yellow-400/40' :
+                      progress >= 40 ? 'bg-gradient-to-br from-orange-400 via-yellow-400 to-green-400 shadow-lg shadow-orange-400/40' :
+                      progress >= 20 ? 'bg-gradient-to-br from-drift-orange via-orange-400 to-yellow-400 shadow-lg shadow-drift-orange/40' :
+                      'bg-gradient-to-br from-white/20 via-white/30 to-drift-orange/40 shadow-lg shadow-white/20'
+                    } relative overflow-hidden`}>
+                      
+                      {/* 100% Completion Special Effects */}
+                      {progress === 100 && (
+                        <>
+                          {/* Radial glow effect */}
+                          <div className="absolute inset-0 bg-gradient-radial from-emerald-200/40 via-green-300/30 to-transparent animate-pulse-glow"></div>
+                          
+                          {/* Multiple sparkle layers */}
+                          <div className="absolute top-1 left-2 w-2 h-2 bg-white rounded-full animate-sparkle-burst-1"></div>
+                          <div className="absolute top-4 right-2 w-1.5 h-1.5 bg-yellow-200 rounded-full animate-sparkle-burst-2"></div>
+                          <div className="absolute bottom-3 left-4 w-2.5 h-2.5 bg-emerald-200 rounded-full animate-sparkle-burst-3"></div>
+                          <div className="absolute bottom-1 right-4 w-1 h-1 bg-white rounded-full animate-sparkle-burst-4"></div>
+                          <div className="absolute top-8 left-8 w-1.5 h-1.5 bg-green-200 rounded-full animate-sparkle-burst-5"></div>
+                          <div className="absolute top-12 right-6 w-1 h-1 bg-white rounded-full animate-sparkle-burst-6"></div>
+                          
+                          {/* Magical energy waves */}
+                          <div className="absolute inset-0 rounded-full border-2 border-emerald-300/50 animate-energy-wave-1"></div>
+                          <div className="absolute inset-0 rounded-full border border-green-200/40 animate-energy-wave-2"></div>
+                          
+                          {/* Success shimmer */}
+                          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-emerald-200/40 to-transparent -translate-x-full animate-success-shimmer"></div>
+                        </>
+                      )}
+                      
+                      {/* Regular sparkle effects for 80%+ */}
+                      {progress >= 80 && progress < 100 && (
+                        <>
+                          <div className="absolute top-2 left-4 w-1 h-1 bg-white rounded-full animate-ping"></div>
+                          <div className="absolute top-6 right-3 w-1.5 h-1.5 bg-white rounded-full animate-ping animation-delay-300"></div>
+                          <div className="absolute bottom-4 left-6 w-1 h-1 bg-white rounded-full animate-ping animation-delay-600"></div>
+                          <div className="absolute bottom-2 right-5 w-0.5 h-0.5 bg-white rounded-full animate-ping animation-delay-900"></div>
+                        </>
+                      )}
+                      
+                      {/* Growth shimmer effect */}
+                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full animate-shimmer"></div>
+                    </div>
+                    
+                    {/* Side branches */}
+                    <div className={`absolute -left-6 top-8 w-16 h-16 rounded-full transition-all duration-1000 ${
+                      progress === 100 ? 'bg-gradient-to-br from-emerald-300 to-green-500 opacity-90 shadow-lg shadow-emerald-400/40 animate-branch-glow' :
+                      progress >= 60 ? 'bg-gradient-to-br from-green-400 to-green-500 opacity-80' :
+                      progress >= 30 ? 'bg-gradient-to-br from-yellow-400 to-green-400 opacity-60' :
+                      'bg-white/10 opacity-40'
+                    }`}>
+                      {/* 100% branch sparkles */}
+                      {progress === 100 && (
+                        <>
+                          <div className="absolute top-2 right-2 w-1 h-1 bg-white rounded-full animate-ping"></div>
+                          <div className="absolute bottom-3 left-3 w-0.5 h-0.5 bg-emerald-200 rounded-full animate-ping animation-delay-500"></div>
+                        </>
+                      )}
+                    </div>
+                    <div className={`absolute -right-6 top-12 w-12 h-12 rounded-full transition-all duration-1000 ${
+                      progress === 100 ? 'bg-gradient-to-br from-emerald-300 to-green-500 opacity-85 shadow-lg shadow-emerald-400/30 animate-branch-glow' :
+                      progress >= 70 ? 'bg-gradient-to-br from-green-400 to-green-500 opacity-70' :
+                      progress >= 40 ? 'bg-gradient-to-br from-yellow-400 to-green-400 opacity-50' :
+                      'bg-white/10 opacity-30'
+                    }`}>
+                      {/* 100% branch sparkles */}
+                      {progress === 100 && (
+                        <>
+                          <div className="absolute top-1 left-2 w-0.5 h-0.5 bg-white rounded-full animate-ping animation-delay-700"></div>
+                          <div className="absolute bottom-2 right-1 w-1 h-1 bg-emerald-200 rounded-full animate-ping animation-delay-200"></div>
+                        </>
+                      )}
+                    </div>
+                    
+                    {/* 100% Completion Extra Branches */}
+                    {progress === 100 && (
+                      <>
+                        <div className="absolute -left-10 top-4 w-8 h-8 rounded-full bg-gradient-to-br from-emerald-200 to-green-400 opacity-70 shadow-md shadow-emerald-300/40 animate-extra-branch-1">
+                          <div className="absolute top-1 right-1 w-0.5 h-0.5 bg-white rounded-full animate-ping"></div>
+                        </div>
+                        <div className="absolute -right-8 top-6 w-6 h-6 rounded-full bg-gradient-to-br from-emerald-200 to-green-400 opacity-60 shadow-md shadow-emerald-300/30 animate-extra-branch-2">
+                          <div className="absolute bottom-1 left-1 w-0.5 h-0.5 bg-white rounded-full animate-ping animation-delay-400"></div>
+                        </div>
+                        <div className="absolute -left-4 top-16 w-4 h-4 rounded-full bg-gradient-to-br from-emerald-200 to-green-400 opacity-50 animate-extra-branch-3"></div>
+                      </>
+                    )}
+                  </div>
+                  
+                  {/* Tree Trunk */}
+                  <div className="relative">
+                    {/* Main trunk */}
+                    <div className={`w-8 h-24 rounded-lg shadow-lg relative overflow-hidden transition-all duration-1000 ${
+                      progress === 100 ? 'bg-gradient-to-b from-amber-600 via-amber-700 to-amber-800 shadow-xl shadow-amber-600/40' : 'bg-gradient-to-b from-amber-700 via-amber-800 to-amber-900'
+                    }`}>
+                      {/* Progress fill in trunk */}
+                      <div 
+                        className={`absolute bottom-0 left-0 right-0 transition-all duration-1000 rounded-lg ${
+                          progress === 100 ? 'bg-gradient-to-t from-emerald-400 via-green-400 to-emerald-300 shadow-inner shadow-emerald-500/50' : 'bg-gradient-to-t from-drift-orange via-drift-pink to-drift-mauve'
+                        }`}
+                        style={{ height: `${progress}%` }}
+                      >
+                        {/* 100% trunk glow effect */}
+                        {progress === 100 && (
+                          <div className="absolute inset-0 bg-gradient-to-t from-emerald-200/30 via-green-300/20 to-emerald-200/30 animate-trunk-glow"></div>
+                        )}
+                      </div>
+                      
+                      {/* Trunk texture lines */}
+                      <div className="absolute inset-0 flex flex-col justify-around opacity-30">
+                        <div className="h-px bg-amber-600"></div>
+                        <div className="h-px bg-amber-600"></div>
+                        <div className="h-px bg-amber-600"></div>
+                      </div>
+                      
+                      {/* 100% completion trunk sparkles */}
+                      {progress === 100 && (
+                        <>
+                          <div className="absolute top-4 left-1 w-0.5 h-0.5 bg-emerald-200 rounded-full animate-ping animation-delay-300"></div>
+                          <div className="absolute top-12 right-1 w-0.5 h-0.5 bg-white rounded-full animate-ping animation-delay-800"></div>
+                          <div className="absolute bottom-8 left-2 w-0.5 h-0.5 bg-emerald-200 rounded-full animate-ping animation-delay-1000"></div>
+                        </>
+                      )}
+                    </div>
+                    
+                    {/* Small branches */}
+                    <div className={`absolute -left-3 top-4 w-6 h-1 rounded-full transition-all duration-700 ${
+                      progress >= 25 ? 'bg-amber-700' : 'bg-white/20'
+                    } rotate-45`}></div>
+                    <div className={`absolute -right-3 top-8 w-4 h-1 rounded-full transition-all duration-700 ${
+                      progress >= 50 ? 'bg-amber-700' : 'bg-white/20'
+                    } -rotate-45`}></div>
+                    <div className={`absolute -left-2 top-12 w-3 h-1 rounded-full transition-all duration-700 ${
+                      progress >= 75 ? 'bg-amber-700' : 'bg-white/20'
+                    } rotate-30`}></div>
+                  </div>
+                  
+                  {/* Tree Roots/Base */}
+                  <div className="relative mt-2">
+                    <div className="w-20 h-4 bg-gradient-to-b from-amber-900 to-amber-950 rounded-full opacity-60"></div>
+                    {/* Root lines */}
+                    <div className="absolute -left-2 -top-1 w-8 h-1 bg-amber-900 rounded-full opacity-40 rotate-12"></div>
+                    <div className="absolute -right-2 -top-1 w-6 h-1 bg-amber-900 rounded-full opacity-40 -rotate-12"></div>
+                  </div>
+                  
+                  {/* Floating leaves/particles */}
+                  {progress === 100 ? (
+                    <>
+                      {/* 100% Celebration Particles */}
+                      <div className="absolute -top-6 -left-12 w-3 h-3 bg-emerald-300 rounded-full animate-celebration-burst-1 opacity-80"></div>
+                      <div className="absolute -top-8 right-10 w-2.5 h-2.5 bg-green-300 rounded-full animate-celebration-burst-2 opacity-90"></div>
+                      <div className="absolute top-2 -right-14 w-2 h-2 bg-emerald-400 rounded-full animate-celebration-burst-3 opacity-75"></div>
+                      <div className="absolute -top-4 left-12 w-1.5 h-1.5 bg-white rounded-full animate-celebration-burst-4 opacity-85"></div>
+                      <div className="absolute top-6 -left-16 w-2 h-2 bg-green-200 rounded-full animate-celebration-burst-5 opacity-70"></div>
+                      <div className="absolute -top-2 -right-8 w-1 h-1 bg-emerald-200 rounded-full animate-celebration-burst-6 opacity-80"></div>
+                      
+                      {/* Golden confetti */}
+                      <div className="absolute -top-10 left-4 w-1 h-1 bg-yellow-300 rounded-full animate-confetti-1 opacity-90"></div>
+                      <div className="absolute -top-12 right-6 w-1.5 h-1.5 bg-yellow-400 rounded-full animate-confetti-2 opacity-85"></div>
+                      <div className="absolute -top-8 -left-2 w-1 h-1 bg-yellow-200 rounded-full animate-confetti-3 opacity-80"></div>
+                      
+                      {/* Success aura */}
+                      <div className="absolute -inset-8 rounded-full border border-emerald-300/30 animate-success-aura-1"></div>
+                      <div className="absolute -inset-12 rounded-full border border-green-200/20 animate-success-aura-2"></div>
+                    </>
+                  ) : progress >= 60 && (
+                    <>
+                      <div className="absolute -top-4 -left-8 w-2 h-2 bg-green-400 rounded-full animate-float-leaf-1 opacity-70"></div>
+                      <div className="absolute -top-2 right-8 w-1.5 h-1.5 bg-yellow-400 rounded-full animate-float-leaf-2 opacity-60"></div>
+                      <div className="absolute top-4 -right-10 w-1 h-1 bg-green-500 rounded-full animate-float-leaf-3 opacity-80"></div>
+                    </>
+                  )}
                 </div>
-                <div className="text-center text-white">
-                  <span className="text-2xl font-bold">{progress}%</span>
-                  <span className="text-white/70 ml-2">({completedTasks} of {totalTasks} tasks completed)</span>
-                </div>
+                
+                                 {/* Progress Text */}
+                 <div className="text-center text-white mt-6">
+                   <div className="mb-2">
+                     <span className={`text-3xl font-bold ${
+                       progress === 100 ? 'bg-gradient-to-r from-emerald-300 via-green-400 to-emerald-500 bg-clip-text text-transparent animate-pulse' : 'bg-gradient-to-r from-drift-orange via-drift-pink to-drift-mauve bg-clip-text text-transparent'
+                     }`}>
+                       {progress}%
+                     </span>
+                     {progress === 100 && (
+                       <div className="mt-2">
+                         <span className="text-xl mx-2 text-emerald-300 font-bold animate-pulse">COMPLETE!</span>
+                       </div>
+                     )}
+                   </div>
+                   <p className={`text-lg ${
+                     progress === 100 ? 'text-emerald-200 font-semibold' : 'text-white/80'
+                   }`}>
+                     {completedTasks} of {totalTasks} tasks completed
+                   </p>
+                   <p className={`text-sm mt-1 ${
+                     progress === 100 ? 'text-emerald-300 font-medium text-base' : 'text-white/60'
+                   }`}>
+                     {progress >= 100 ? 'Congratulations! Your goal is achieved and your tree has reached full bloom!' :
+                      progress >= 80 ? 'Almost there! Your tree is flourishing!' :
+                      progress >= 60 ? 'Great progress! Your tree is growing strong!' :
+                      progress >= 40 ? 'Keep going! Your tree is taking shape!' :
+                      progress >= 20 ? 'Good start! Your tree is sprouting!' :
+                      'Plant the seed of success!'}
+                   </p>
+                   
+                   {/* 100% Celebration Message */}
+                                        {progress === 100 && (
+                       <div className="mt-4 p-4 bg-emerald-500/20 backdrop-blur-sm rounded-lg border border-emerald-400/30">
+                         <p className="text-emerald-200 font-medium">
+                           Amazing work! You've successfully completed your journey. 
+                           Your dedication has grown into something beautiful!
+                         </p>
+                       </div>
+                     )}
+                 </div>
               </div>
             </div>
           </div>

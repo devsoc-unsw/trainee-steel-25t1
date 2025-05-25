@@ -14,6 +14,9 @@ module.exports = {
           blue: '#475C7A',
         }
       },
+      backgroundImage: {
+        'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
+      },
       keyframes: {
         floating: {
           "0%, 100%": { transform: "translateY(0px) rotate(0deg)" },
@@ -152,6 +155,155 @@ module.exports = {
           "50%": { transform: "translateX(0%)" },
           "100%": { transform: "translateX(100%)" },
         },
+        'shimmer': {
+          "0%": { transform: "translateX(-100%)" },
+          "100%": { transform: "translateX(100%)" },
+        },
+        'float-leaf-1': {
+          "0%, 100%": { transform: "translateY(0px) translateX(0px) rotate(0deg)", opacity: 0.7 },
+          "25%": { transform: "translateY(-8px) translateX(4px) rotate(45deg)", opacity: 0.9 },
+          "50%": { transform: "translateY(-12px) translateX(8px) rotate(90deg)", opacity: 0.6 },
+          "75%": { transform: "translateY(-6px) translateX(12px) rotate(135deg)", opacity: 0.8 },
+        },
+        'float-leaf-2': {
+          "0%, 100%": { transform: "translateY(0px) translateX(0px) rotate(0deg)", opacity: 0.6 },
+          "33%": { transform: "translateY(-6px) translateX(-8px) rotate(-30deg)", opacity: 0.8 },
+          "66%": { transform: "translateY(-10px) translateX(-4px) rotate(-60deg)", opacity: 0.5 },
+        },
+        'float-leaf-3': {
+          "0%, 100%": { transform: "translateY(0px) translateX(0px) rotate(0deg)", opacity: 0.8 },
+          "20%": { transform: "translateY(-4px) translateX(-6px) rotate(20deg)", opacity: 0.6 },
+          "40%": { transform: "translateY(-8px) translateX(-12px) rotate(40deg)", opacity: 0.9 },
+          "60%": { transform: "translateY(-6px) translateX(-8px) rotate(60deg)", opacity: 0.7 },
+          "80%": { transform: "translateY(-2px) translateX(-4px) rotate(80deg)", opacity: 0.8 },
+        },
+        'tree-complete': {
+          "0%, 100%": { transform: "scale(1)", filter: "brightness(1)" },
+          "50%": { transform: "scale(1.05)", filter: "brightness(1.2)" },
+        },
+        'pulse-glow': {
+          "0%, 100%": { opacity: 0.4, transform: "scale(1)" },
+          "50%": { opacity: 0.8, transform: "scale(1.1)" },
+        },
+        'sparkle-burst-1': {
+          "0%": { transform: "scale(0) rotate(0deg)", opacity: 0 },
+          "50%": { transform: "scale(1.5) rotate(180deg)", opacity: 1 },
+          "100%": { transform: "scale(0) rotate(360deg)", opacity: 0 },
+        },
+        'sparkle-burst-2': {
+          "0%": { transform: "scale(0) rotate(0deg)", opacity: 0 },
+          "60%": { transform: "scale(1.3) rotate(240deg)", opacity: 1 },
+          "100%": { transform: "scale(0) rotate(360deg)", opacity: 0 },
+        },
+        'sparkle-burst-3': {
+          "0%": { transform: "scale(0) rotate(0deg)", opacity: 0 },
+          "40%": { transform: "scale(1.8) rotate(120deg)", opacity: 1 },
+          "100%": { transform: "scale(0) rotate(360deg)", opacity: 0 },
+        },
+        'sparkle-burst-4': {
+          "0%": { transform: "scale(0) rotate(0deg)", opacity: 0 },
+          "70%": { transform: "scale(1.2) rotate(300deg)", opacity: 1 },
+          "100%": { transform: "scale(0) rotate(360deg)", opacity: 0 },
+        },
+        'sparkle-burst-5': {
+          "0%": { transform: "scale(0) rotate(0deg)", opacity: 0 },
+          "55%": { transform: "scale(1.6) rotate(200deg)", opacity: 1 },
+          "100%": { transform: "scale(0) rotate(360deg)", opacity: 0 },
+        },
+        'sparkle-burst-6': {
+          "0%": { transform: "scale(0) rotate(0deg)", opacity: 0 },
+          "45%": { transform: "scale(1.4) rotate(160deg)", opacity: 1 },
+          "100%": { transform: "scale(0) rotate(360deg)", opacity: 0 },
+        },
+        'energy-wave-1': {
+          "0%": { transform: "scale(1)", opacity: 0.5 },
+          "50%": { transform: "scale(1.3)", opacity: 0.2 },
+          "100%": { transform: "scale(1.6)", opacity: 0 },
+        },
+        'energy-wave-2': {
+          "0%": { transform: "scale(1)", opacity: 0.4 },
+          "50%": { transform: "scale(1.5)", opacity: 0.1 },
+          "100%": { transform: "scale(2)", opacity: 0 },
+        },
+        'success-shimmer': {
+          "0%": { transform: "translateX(-100%)" },
+          "100%": { transform: "translateX(100%)" },
+        },
+        'branch-glow': {
+          "0%, 100%": { filter: "brightness(1)" },
+          "50%": { filter: "brightness(1.3)" },
+        },
+        'extra-branch-1': {
+          "0%": { transform: "scale(0)", opacity: 0 },
+          "50%": { transform: "scale(1.2)", opacity: 0.8 },
+          "100%": { transform: "scale(1)", opacity: 0.7 },
+        },
+        'extra-branch-2': {
+          "0%": { transform: "scale(0)", opacity: 0 },
+          "60%": { transform: "scale(1.3)", opacity: 0.7 },
+          "100%": { transform: "scale(1)", opacity: 0.6 },
+        },
+        'extra-branch-3': {
+          "0%": { transform: "scale(0)", opacity: 0 },
+          "70%": { transform: "scale(1.4)", opacity: 0.6 },
+          "100%": { transform: "scale(1)", opacity: 0.5 },
+        },
+        'trunk-glow': {
+          "0%, 100%": { opacity: 0.3 },
+          "50%": { opacity: 0.7 },
+        },
+        'celebration-burst-1': {
+          "0%": { transform: "translateY(0) scale(0)", opacity: 0 },
+          "50%": { transform: "translateY(-20px) scale(1.5)", opacity: 1 },
+          "100%": { transform: "translateY(-40px) scale(0)", opacity: 0 },
+        },
+        'celebration-burst-2': {
+          "0%": { transform: "translateY(0) scale(0)", opacity: 0 },
+          "60%": { transform: "translateY(-25px) scale(1.3)", opacity: 1 },
+          "100%": { transform: "translateY(-50px) scale(0)", opacity: 0 },
+        },
+        'celebration-burst-3': {
+          "0%": { transform: "translateY(0) scale(0)", opacity: 0 },
+          "40%": { transform: "translateY(-15px) scale(1.8)", opacity: 1 },
+          "100%": { transform: "translateY(-35px) scale(0)", opacity: 0 },
+        },
+        'celebration-burst-4': {
+          "0%": { transform: "translateY(0) scale(0)", opacity: 0 },
+          "70%": { transform: "translateY(-30px) scale(1.2)", opacity: 1 },
+          "100%": { transform: "translateY(-60px) scale(0)", opacity: 0 },
+        },
+        'celebration-burst-5': {
+          "0%": { transform: "translateY(0) scale(0)", opacity: 0 },
+          "55%": { transform: "translateY(-18px) scale(1.6)", opacity: 1 },
+          "100%": { transform: "translateY(-45px) scale(0)", opacity: 0 },
+        },
+        'celebration-burst-6': {
+          "0%": { transform: "translateY(0) scale(0)", opacity: 0 },
+          "45%": { transform: "translateY(-22px) scale(1.4)", opacity: 1 },
+          "100%": { transform: "translateY(-55px) scale(0)", opacity: 0 },
+        },
+        'confetti-1': {
+          "0%": { transform: "translateY(0) rotate(0deg)", opacity: 1 },
+          "100%": { transform: "translateY(-80px) rotate(720deg)", opacity: 0 },
+        },
+        'confetti-2': {
+          "0%": { transform: "translateY(0) rotate(0deg)", opacity: 1 },
+          "100%": { transform: "translateY(-100px) rotate(540deg)", opacity: 0 },
+        },
+        'confetti-3': {
+          "0%": { transform: "translateY(0) rotate(0deg)", opacity: 1 },
+          "100%": { transform: "translateY(-70px) rotate(900deg)", opacity: 0 },
+        },
+        'success-aura-1': {
+          "0%": { transform: "scale(1)", opacity: 0.3 },
+          "50%": { transform: "scale(1.2)", opacity: 0.1 },
+          "100%": { transform: "scale(1.4)", opacity: 0 },
+        },
+        'success-aura-2': {
+          "0%": { transform: "scale(1)", opacity: 0.2 },
+          "50%": { transform: "scale(1.3)", opacity: 0.05 },
+          "100%": { transform: "scale(1.6)", opacity: 0 },
+        },
       },
       animation: {
         floating: "floating 4s ease-in-out infinite",
@@ -182,6 +334,37 @@ module.exports = {
         'spin-slow': "spin-slow 8s linear infinite",
         'fade-in-up': "fade-in-up 1s ease-out",
         'loading-bar': "loading-bar 2s ease-in-out infinite",
+        'shimmer': "shimmer 3s ease-in-out infinite",
+        'float-leaf-1': "float-leaf-1 6s ease-in-out infinite",
+        'float-leaf-2': "float-leaf-2 8s ease-in-out infinite 1s",
+        'float-leaf-3': "float-leaf-3 7s ease-in-out infinite 2s",
+        'tree-complete': "tree-complete 3s ease-in-out infinite",
+        'pulse-glow': "pulse-glow 2s ease-in-out infinite",
+        'sparkle-burst-1': "sparkle-burst-1 2s ease-out infinite",
+        'sparkle-burst-2': "sparkle-burst-2 2.5s ease-out infinite 0.3s",
+        'sparkle-burst-3': "sparkle-burst-3 2.2s ease-out infinite 0.6s",
+        'sparkle-burst-4': "sparkle-burst-4 2.8s ease-out infinite 0.9s",
+        'sparkle-burst-5': "sparkle-burst-5 2.3s ease-out infinite 1.2s",
+        'sparkle-burst-6': "sparkle-burst-6 2.6s ease-out infinite 1.5s",
+        'energy-wave-1': "energy-wave-1 3s ease-out infinite",
+        'energy-wave-2': "energy-wave-2 4s ease-out infinite 1s",
+        'success-shimmer': "success-shimmer 2s ease-in-out infinite",
+        'branch-glow': "branch-glow 2.5s ease-in-out infinite",
+        'extra-branch-1': "extra-branch-1 1s ease-out",
+        'extra-branch-2': "extra-branch-2 1.2s ease-out 0.2s",
+        'extra-branch-3': "extra-branch-3 1.4s ease-out 0.4s",
+        'trunk-glow': "trunk-glow 2s ease-in-out infinite",
+        'celebration-burst-1': "celebration-burst-1 3s ease-out infinite",
+        'celebration-burst-2': "celebration-burst-2 3.5s ease-out infinite 0.5s",
+        'celebration-burst-3': "celebration-burst-3 3.2s ease-out infinite 1s",
+        'celebration-burst-4': "celebration-burst-4 3.8s ease-out infinite 1.5s",
+        'celebration-burst-5': "celebration-burst-5 3.3s ease-out infinite 2s",
+        'celebration-burst-6': "celebration-burst-6 3.6s ease-out infinite 2.5s",
+        'confetti-1': "confetti-1 4s ease-out infinite",
+        'confetti-2': "confetti-2 4.5s ease-out infinite 0.8s",
+        'confetti-3': "confetti-3 4.2s ease-out infinite 1.6s",
+        'success-aura-1': "success-aura-1 4s ease-out infinite",
+        'success-aura-2': "success-aura-2 5s ease-out infinite 1s",
       },
       animationDelay: {
         '200': '200ms',
