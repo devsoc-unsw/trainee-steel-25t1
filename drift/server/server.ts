@@ -1,9 +1,10 @@
 import dotenv from 'dotenv';
+import path from 'path';
 import app from './app';
 import connectDB from './config/db';
 
-// Load environment variables
-dotenv.config();
+// Load environment variables with explicit path
+dotenv.config({ path: path.join(__dirname, '.env') });
 
 // Connect to database
 connectDB();
