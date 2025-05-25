@@ -230,4 +230,4 @@ export const getAchievementStats = async (): Promise<AchievementStats> => {
   }
 };
 
-export type { Achievement, CreateAchievementData, AchievementStats }; 
+export type { Achievement, CreateAchievementData, AchievementStats };

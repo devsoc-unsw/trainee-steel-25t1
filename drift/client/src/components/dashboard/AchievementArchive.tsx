@@ -215,7 +215,7 @@ const AchievementArchive: React.FC = () => {
             <div className="w-full max-w-2xl mx-4 md:mx-16">
               <div 
                 className={`bg-white rounded-2xl md:rounded-3xl shadow-2xl overflow-hidden transition-all duration-300 cursor-pointer hover:shadow-3xl ${
-                  isTransitioning ? 'opacity-0 scale-95' : 'opacity-100 scale-100'
+                isTransitioning ? 'opacity-0 scale-95' : 'opacity-100 scale-100'
                 }`}
                 onClick={() => openImageModal(currentGoal)}
               >
