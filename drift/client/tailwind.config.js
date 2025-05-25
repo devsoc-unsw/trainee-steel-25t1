@@ -130,6 +130,19 @@ module.exports = {
           "0%, 100%": { opacity: 0, transform: "translate(0, 0) scale(0)" },
           "65%": { opacity: 0.9, transform: "translate(8px, 5px) scale(1.1)" },
         },
+        'spin-slow': {
+          "0%": { transform: "rotate(0deg)" },
+          "100%": { transform: "rotate(360deg)" },
+        },
+        'fade-in-up': {
+          "0%": { opacity: 0, transform: "translateY(20px)" },
+          "100%": { opacity: 1, transform: "translateY(0)" },
+        },
+        'loading-bar': {
+          "0%": { transform: "translateX(-100%)" },
+          "50%": { transform: "translateX(0%)" },
+          "100%": { transform: "translateX(100%)" },
+        },
       },
       animation: {
         floating: "floating 4s ease-in-out infinite",
@@ -155,6 +168,17 @@ module.exports = {
         sparkle1: "sparkle1 4s ease-out infinite 0.5s",
         sparkle2: "sparkle2 5s ease-out infinite 1.2s",
         sparkle3: "sparkle3 4.5s ease-out infinite 2s",
+        'spin-slow': "spin-slow 8s linear infinite",
+        'fade-in-up': "fade-in-up 1s ease-out",
+        'loading-bar': "loading-bar 2s ease-in-out infinite",
+      },
+      animationDelay: {
+        '200': '200ms',
+        '500': '500ms',
+        '700': '700ms',
+        '1000': '1s',
+        '2000': '2s',
+        '3000': '3s',
       },
     },
   },

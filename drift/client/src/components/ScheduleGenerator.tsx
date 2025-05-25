@@ -1,5 +1,60 @@
 import React, { useEffect, useState } from 'react';
 import { generateSchedule } from '../services/huggingfaceService';
+import DriftLogo from '../assets/drift_logo.svg';
+
+// Beautiful Loading Component
+const DriftLoadingScreen: React.FC = () => {
+  return (
+    <div className="min-h-screen bg-gradient-to-b from-drift-orange via-drift-pink to-drift-blue flex items-center justify-center">
+      <div className="text-center">
+        {/* Animated Logo */}
+        <div className="relative mb-8">
+          <div className="animate-pulse">
+            <img src={DriftLogo} alt="Drift logo" className="h-32 w-32 mx-auto animate-spin-slow" />
+          </div>
+          {/* Floating particles */}
+          <div className="absolute -top-4 -left-4 w-2 h-2 bg-white rounded-full animate-ping"></div>
+          <div className="absolute -top-2 -right-6 w-1 h-1 bg-white rounded-full animate-ping animation-delay-200"></div>
+          <div className="absolute -bottom-3 -left-2 w-1.5 h-1.5 bg-white rounded-full animate-ping animation-delay-500"></div>
+          <div className="absolute -bottom-4 -right-4 w-2 h-2 bg-white rounded-full animate-ping animation-delay-700"></div>
+        </div>
+        
+        {/* Loading Text */}
+        <div className="space-y-4">
+          <h2 className="text-3xl font-bold text-white animate-pulse">
+            Crafting Your Perfect Schedule
+          </h2>
+          <p className="text-white/80 text-lg animate-fade-in-up">
+            Our AI is analyzing your goals and creating a personalized plan...
+          </p>
+          
+          {/* Loading Bar */}
+          <div className="w-80 mx-auto mt-8">
+            <div className="h-2 bg-white/20 rounded-full overflow-hidden">
+              <div className="h-full bg-gradient-to-r from-white via-drift-mauve to-white rounded-full animate-loading-bar"></div>
+            </div>
+          </div>
+          
+          {/* Loading Steps */}
+          <div className="mt-8 space-y-2 text-white/70">
+            <div className="flex items-center justify-center space-x-2 animate-fade-in-up animation-delay-1000">
+              <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
+              <span>Analyzing your goal complexity...</span>
+            </div>
+            <div className="flex items-center justify-center space-x-2 animate-fade-in-up animation-delay-2000">
+              <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
+              <span>Calculating optimal task distribution...</span>
+            </div>
+            <div className="flex items-center justify-center space-x-2 animate-fade-in-up animation-delay-3000">
+              <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
+              <span>Generating your personalized schedule...</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 const ScheduleGenerator: React.FC = () => {
   const [goal, setGoal] = useState('');
@@ -9,7 +64,6 @@ const ScheduleGenerator: React.FC = () => {
   const [schedule, setSchedule] = useState('');
   const [loading, setLoading] = useState(false);
   const [tableData, setTableData] = useState<{ date: string; tasks: string[] }[]>([]);
-  // Track checked state for each task
   const [checked, setChecked] = useState<boolean[][]>([]);
 
   // Helper to parse schedule string into table data
@@ -26,51 +80,46 @@ const ScheduleGenerator: React.FC = () => {
   };
 
   useEffect(() => {
-  const stored = localStorage.getItem('goalData');
-  const storedSchedule = localStorage.getItem('scheduleData');
-  const storedMeta = localStorage.getItem('scheduleMeta');
-  if (stored) {
-    const data = JSON.parse(stored);
-    setGoal(data.objective || '');
-    setStartDate(new Date().toISOString().split('T')[0]);
-    setEndDate(data.deadline || '');
-    setIntensity(data.dedication || '');
+    const stored = localStorage.getItem('goalData');
+    const storedSchedule = localStorage.getItem('scheduleData');
+    const storedMeta = localStorage.getItem('scheduleMeta');
+    if (stored) {
+      const data = JSON.parse(stored);
+      setGoal(data.objective || '');
+      setStartDate(new Date().toISOString().split('T')[0]);
+      setEndDate(data.deadline || '');
+      setIntensity(data.dedication || '');
 
-    // Compare meta
-    const meta = JSON.stringify({
-      objective: data.objective,
-      deadline: data.deadline,
-      dedication: data.dedication,
-    });
+      const meta = JSON.stringify({
+        objective: data.objective,
+        deadline: data.deadline,
+        dedication: data.dedication,
+      });
 
-    if (storedSchedule && storedMeta === meta) {
-      setSchedule(storedSchedule);
-      const parsed = parseScheduleToTable(storedSchedule);
-      setTableData(parsed);
-      setChecked(parsed.map(day => day.tasks.map(() => false)));
-    } else if (data.objective && data.deadline && data.dedication) {
-      setLoading(true);
-      generateSchedule(data.objective, new Date().toISOString().split('T')[0], data.deadline, data.dedication)
-        .then(result => {
-          setSchedule(result);
-          const parsed = parseScheduleToTable(result);
-          setTableData(parsed);
-          setChecked(parsed.map(day => day.tasks.map(() => false)));
-          localStorage.setItem('scheduleData', result); // Save to localStorage
-          localStorage.setItem('scheduleMeta', meta);   // Save meta
-        })
-        .finally(() => setLoading(false));
+      if (storedSchedule && storedMeta === meta) {
+        setSchedule(storedSchedule);
+        const parsed = parseScheduleToTable(storedSchedule);
+        setTableData(parsed);
+        setChecked(parsed.map(day => day.tasks.map(() => false)));
+      } else if (data.objective && data.deadline && data.dedication) {
+        setLoading(true);
+        generateSchedule(data.objective, new Date().toISOString().split('T')[0], data.deadline, data.dedication)
+          .then(result => {
+            setSchedule(result);
+            const parsed = parseScheduleToTable(result);
+            setTableData(parsed);
+            setChecked(parsed.map(day => day.tasks.map(() => false)));
+            localStorage.setItem('scheduleData', result);
+            localStorage.setItem('scheduleMeta', meta);
+          })
+          .finally(() => setLoading(false));
+      }
     }
-  }
-}, []);
+  }, []);
 
-  // Get all unique dates for columns
   const allDates = tableData.map(row => row.date);
-
-  // Find the max number of tasks for any day (for row count)
   const maxTasks = Math.max(...tableData.map(row => row.tasks.length), 0);
 
-  // Handle checkbox change
   const handleCheckboxChange = (dayIdx: number, taskIdx: number) => {
     setChecked(prev => {
       const updated = prev.map(arr => [...arr]);
@@ -79,7 +128,6 @@ const ScheduleGenerator: React.FC = () => {
     });
   };
 
-  // Calculate progress
   const totalTasks = tableData.reduce((sum, day) => sum + day.tasks.length, 0);
   const completedTasks = checked.reduce(
     (sum, dayArr) => sum + dayArr.filter(Boolean).length,
@@ -87,70 +135,69 @@ const ScheduleGenerator: React.FC = () => {
   );
   const progress = totalTasks === 0 ? 0 : Math.round((completedTasks / totalTasks) * 100);
 
-  return (
-    <div style={{ maxWidth: 1500, margin: '32px auto', padding: '24px', background: '#fafcff', borderRadius: '16px', boxShadow: '0 2px 12px 0 #0001' }}>
-      {/* <h2>AI-Generated Schedule</h2> */}
-      {loading ? (
-        <p>Generating your schedule...</p>
-      ) : (
-        <div>
-          <h3><b>Your Goal:</b></h3>
-          <p>{goal}</p>
-          <h3><b>Start Date:</b></h3>
-          <p>{startDate}</p>
-          <h3><b>End Date:</b></h3>
-          <p>{endDate}</p>
-          <h3><b>Intensity:</b></h3>
-          <p>{intensity}</p>
-          {/* <h3><b>Schedule:</b></h3>
-          <pre>{schedule}</pre> */}
-          <div style={{ height: '24px' }} />
+  if (loading) {
+    return <DriftLoadingScreen />;
+  }
 
+  return (
+    <div className="min-h-screen bg-gradient-to-b from-drift-orange via-drift-pink to-drift-blue">
+      <div className="max-w-7xl mx-auto px-4 py-8">
+        {/* Header Section */}
+        <div className="text-center mb-8">
+          <img src={DriftLogo} alt="Drift logo" className="h-16 w-16 mx-auto mb-4" />
+          <h1 className="text-4xl font-bold text-white mb-2">Your Personalized Schedule</h1>
+          <p className="text-white/80 text-lg">AI-crafted plan to achieve your goals</p>
+        </div>
+
+        {/* Goal Summary Card */}
+        <div className="bg-white/10 backdrop-blur-md rounded-2xl p-6 mb-8 border border-white/20">
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="text-center">
+              <h3 className="text-white/70 text-sm font-medium mb-2">Your Goal</h3>
+              <p className="text-white font-semibold">{goal}</p>
+            </div>
+            <div className="text-center">
+              <h3 className="text-white/70 text-sm font-medium mb-2">Start Date</h3>
+              <p className="text-white font-semibold">{startDate}</p>
+            </div>
+            <div className="text-center">
+              <h3 className="text-white/70 text-sm font-medium mb-2">Target Date</h3>
+              <p className="text-white font-semibold">{endDate}</p>
+            </div>
+            <div className="text-center">
+              <h3 className="text-white/70 text-sm font-medium mb-2">Dedication Level</h3>
+              <p className="text-white font-semibold capitalize">{intensity}</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Action Buttons */}
+        <div className="flex justify-center mb-8">
           <button
             onClick={() => {
               localStorage.removeItem('scheduleData');
               localStorage.removeItem('scheduleMeta');
-              window.location.reload(); // Or trigger a state update if you want a smoother UX
+              window.location.reload();
             }}
-            style={{
-              marginBottom: 24,
-              padding: '8px 20px',
-              background: '#2196f3',
-              color: '#fff',
-              border: 'none',
-              borderRadius: '6px',
-              fontWeight: 600,
-              cursor: 'pointer'
-            }}
+            className="px-6 py-3 bg-white/20 backdrop-blur-md text-white rounded-full font-medium hover:bg-white/30 transition-all duration-300 border border-white/30 shadow-lg"
           >
             Regenerate Schedule
           </button>
+        </div>
 
-          <h3><b>Schedule Table:</b></h3>
-          {tableData.length > 0 ? (
-            <div style={{ width: '100%', overflowX: 'auto' }}>
-              <table
-                border={1}
-                cellPadding={6}
-                style={{
-                  borderCollapse: 'collapse',
-                  width: '100%',
-                  minWidth: '800px',
-                  border: '2px solid #333',
-                  background: '#fff'
-                }}
-              >
+        {/* Schedule Table */}
+        {tableData.length > 0 ? (
+          <div className="bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/20">
+            <h2 className="text-2xl font-bold text-white mb-6 text-center">Your Daily Action Plan</h2>
+            
+            <div className="overflow-x-auto">
+              <table className="w-full min-w-[800px]">
                 <thead>
                   <tr>
                     {allDates.map(date => (
                       <th
                         key={date}
-                        style={{
-                          border: '2px solid #333',
-                          background: '#f0f0f0',
-                          fontWeight: 'bold',
-                          textAlign: 'center'
-                        }}
+                        className="p-4 text-white font-semibold text-center bg-drift-blue/30 border border-white/20 rounded-t-lg"
                       >
                         {date}
                       </th>
@@ -163,78 +210,43 @@ const ScheduleGenerator: React.FC = () => {
                       {tableData.map((day, dayIdx) => (
                         <td
                           key={dayIdx}
-                          style={{
-                            border: '2px solid #333',
-                            textAlign: 'left',
-                            position: 'relative',
-                            padding: '8px 16px'
-                          }}
+                          className="p-4 border border-white/20 bg-white/5"
                         >
                           {day.tasks[taskIdx] ? (
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                              <span style={{ flex: 1, textAlign: 'left' }}>{day.tasks[taskIdx]}</span>
+                            <div className="flex items-center justify-between space-x-3">
+                              <span className="text-white text-sm flex-1">{day.tasks[taskIdx]}</span>
                               <input
                                 type="checkbox"
-                                style={{ marginLeft: 16 }}
+                                className="w-4 h-4 text-drift-orange bg-white/20 border-white/30 rounded focus:ring-drift-orange focus:ring-2"
                                 checked={checked[dayIdx]?.[taskIdx] || false}
                                 onChange={() => handleCheckboxChange(dayIdx, taskIdx)}
                               />
                             </div>
-                          ) : ''}
+                          ) : null}
                         </td>
                       ))}
                     </tr>
                   ))}
-                  {/* Per-day progress bars */}
+                  
+                  {/* Daily Progress Bars */}
                   <tr>
                     {tableData.map((day, dayIdx) => {
                       const dayTotal = day.tasks.length;
-                      const dayCompleted =
-                        checked[dayIdx]?.filter(Boolean).length || 0;
-                      const dayProgress =
-                        dayTotal === 0
-                          ? 0
-                          : Math.round((dayCompleted / dayTotal) * 100);
+                      const dayCompleted = checked[dayIdx]?.filter(Boolean).length || 0;
+                      const dayProgress = dayTotal === 0 ? 0 : Math.round((dayCompleted / dayTotal) * 100);
+                      
                       return (
-                        <td
-                          key={dayIdx}
-                          colSpan={1}
-                          style={{
-                            border: '2px solid #333',
-                            background: '#fafafa',
-                            padding: '8px 16px'
-                          }}
-                        >
-                          <div style={{ width: '100%' }}>
-                            <div
-                              style={{
-                                height: '16px',
-                                width: '100%',
-                                background: '#eee',
-                                borderRadius: '8px',
-                                overflow: 'hidden',
-                                border: '1px solid #bbb',
-                                boxSizing: 'border-box'
-                              }}
-                            >
+                        <td key={dayIdx} className="p-4 border border-white/20 bg-drift-blue/20">
+                          <div className="space-y-2">
+                            <div className="h-3 bg-white/20 rounded-full overflow-hidden">
                               <div
-                                style={{
-                                  height: '100%',
-                                  width: `${dayProgress}%`,
-                                  background: dayProgress === 100 ? '#4caf50' : '#2196f3',
-                                  transition: 'width 0.3s',
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  justifyContent: 'center',
-                                  color: '#fff',
-                                  fontWeight: 'bold',
-                                  fontSize: '12px'
-                                }}
-                              >
-                                {dayProgress}%
-                              </div>
+                                className={`h-full rounded-full transition-all duration-500 ${
+                                  dayProgress === 100 ? 'bg-green-400' : 'bg-drift-orange'
+                                }`}
+                                style={{ width: `${dayProgress}%` }}
+                              />
                             </div>
-                            <div style={{ textAlign: 'center', marginTop: 2, fontSize: '12px' }}>
+                            <div className="text-center text-white text-xs">
                               {dayCompleted} of {dayTotal} done
                             </div>
                           </div>
@@ -244,44 +256,33 @@ const ScheduleGenerator: React.FC = () => {
                   </tr>
                 </tbody>
               </table>
-              {/* Overall Progress Bar */}
-              <div style={{ marginTop: 32, width: '100%' }}>
-                <h4 style={{ marginBottom: 8 }}>Overall Progress</h4>
-                <div style={{
-                  height: '24px',
-                  width: '100%',
-                  background: '#eee',
-                  borderRadius: '12px',
-                  overflow: 'hidden',
-                  border: '1.5px solid #333',
-                  boxSizing: 'border-box'
-                }}>
+            </div>
+
+            {/* Overall Progress */}
+            <div className="mt-8">
+              <h3 className="text-xl font-semibold text-white mb-4 text-center">Overall Progress</h3>
+              <div className="max-w-md mx-auto">
+                <div className="h-6 bg-white/20 rounded-full overflow-hidden mb-2">
                   <div
-                    style={{
-                      height: '100%',
-                      width: `${progress}%`,
-                      background: progress === 100 ? '#4caf50' : '#2196f3',
-                      transition: 'width 0.3s',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      color: '#fff',
-                      fontWeight: 'bold'
-                    }}
-                  >
-                    {progress}%
-                  </div>
+                    className={`h-full rounded-full transition-all duration-700 ${
+                      progress === 100 ? 'bg-green-400' : 'bg-gradient-to-r from-drift-orange to-drift-pink'
+                    }`}
+                    style={{ width: `${progress}%` }}
+                  />
                 </div>
-                <div style={{ textAlign: 'center', marginTop: 8, fontWeight: 500 }}>
-                  {completedTasks} of {totalTasks} tasks completed
+                <div className="text-center text-white">
+                  <span className="text-2xl font-bold">{progress}%</span>
+                  <span className="text-white/70 ml-2">({completedTasks} of {totalTasks} tasks completed)</span>
                 </div>
               </div>
             </div>
-          ) : (
-            <p>No schedule data available.</p>
-          )}
-        </div>
-      )}
+          </div>
+        ) : (
+          <div className="text-center text-white">
+            <p className="text-xl">No schedule data available.</p>
+          </div>
+        )}
+      </div>
     </div>
   );
 };
