@@ -10,6 +10,7 @@ import Register from "./components/auth/Register";
 import Login from "./components/auth/Login";
 import Dashboard from "./components/dashboard/Dashboard";
 import Schedule from "./components/ScheduleGenerator";
+import OceanWavesPlayer from "./components/OceanWavesPlayer";
 
 const App: React.FC = () => {
   return (
@@ -22,6 +23,7 @@ const App: React.FC = () => {
         <Route path="/schedule" element={<Schedule />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
+      <OceanWavesPlayer volume={0.2} />
     </Router>
   );
 };
