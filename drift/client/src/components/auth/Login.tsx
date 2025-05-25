@@ -53,7 +53,7 @@ const LoginModal: React.FC = () => {
         ? { email, password }
         : { username, email, password };
 
-      const response = await axios.post(`${process.env.REACT_APP_API_URL}/api/auth/${endpoint}`, payload);
+      const response = await axios.post(`${process.env.REACT_APP_API_URL}api/auth/${endpoint}`, payload);
 
       if (activeTab === 'login') {
         localStorage.setItem('userToken', response.data.token);

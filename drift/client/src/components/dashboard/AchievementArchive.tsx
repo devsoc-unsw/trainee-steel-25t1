@@ -175,7 +175,7 @@ const AchievementArchive: React.FC = () => {
                 className={`absolute left-0 z-10 p-4 transition-all duration-300 ${
                   isTransitioning 
                     ? 'text-drift-blue/30 cursor-not-allowed' 
-                    : 'text-drift-blue/70 hover:text-drift-blue hover:scale-110'
+                    : 'text-drift-blue/70 hover:text-drift-blue hover:scale-110 cursor-pointer'
                 }`}
               >
                 <ChevronLeft className="h-8 w-8" />
@@ -258,7 +258,7 @@ const AchievementArchive: React.FC = () => {
                 className={`absolute right-0 z-10 p-4 transition-all duration-300 ${
                   isTransitioning 
                     ? 'text-drift-blue/30 cursor-not-allowed' 
-                    : 'text-drift-blue/70 hover:text-drift-blue hover:scale-110'
+                    : 'text-drift-blue/70 hover:text-drift-blue hover:scale-110 cursor-pointer'
                 }`}
               >
                 <ChevronRight className="h-8 w-8" />
@@ -302,7 +302,7 @@ const AchievementArchive: React.FC = () => {
               return (
                 <div
                   key={goal._id}
-                  className="bg-white rounded-2xl p-6 shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105"
+                  className="bg-white rounded-2xl p-6 shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 cursor-pointer"
                 >
                   <div className="text-center mb-4">
                     <div className="w-24 h-24 mx-auto mb-4 rounded-xl bg-gradient-to-br from-drift-orange/20 via-drift-pink/20 to-drift-blue/20 flex items-center justify-center relative">
@@ -322,7 +322,17 @@ const AchievementArchive: React.FC = () => {
                     
                     <div className="flex justify-between items-center">
                       <span className="text-gray-500 text-sm">Dedication:</span>
-                      <span className="text-gray-800 text-sm font-medium capitalize">{goal.dedication}</span>
+                      <span>
+                        <span className={`px-2 py-1 text-xs font-semibold rounded-full ${
+                          goal.dedication === 'Intense'
+                            ? 'bg-red-100 text-red-600'
+                            : goal.dedication === 'Moderate'
+                            ? 'bg-yellow-100 text-yellow-600'
+                            : 'bg-green-100 text-green-600'
+                        }`}>
+                          {goal.dedication}
+                        </span>
+                      </span>
                     </div>
                     
                     <div className="flex justify-between items-center">
