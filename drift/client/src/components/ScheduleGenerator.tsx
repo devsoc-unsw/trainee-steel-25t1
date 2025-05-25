@@ -215,12 +215,53 @@ const ScheduleGenerator: React.FC = () => {
                           {day.tasks[taskIdx] ? (
                             <div className="flex items-center justify-between space-x-3">
                               <span className="text-white text-sm flex-1">{day.tasks[taskIdx]}</span>
-                              <input
-                                type="checkbox"
-                                className="w-4 h-4 text-drift-orange bg-white/20 border-white/30 rounded focus:ring-drift-orange focus:ring-2"
-                                checked={checked[dayIdx]?.[taskIdx] || false}
-                                onChange={() => handleCheckboxChange(dayIdx, taskIdx)}
-                              />
+                              <label className="relative cursor-pointer group">
+                                <input
+                                  type="checkbox"
+                                  className="sr-only"
+                                  checked={checked[dayIdx]?.[taskIdx] || false}
+                                  onChange={() => handleCheckboxChange(dayIdx, taskIdx)}
+                                />
+                                <div className={`w-6 h-6 rounded-lg border-2 transition-all duration-300 flex items-center justify-center relative overflow-hidden ${
+                                  checked[dayIdx]?.[taskIdx] 
+                                    ? 'bg-gradient-to-br from-drift-orange via-drift-pink to-drift-mauve border-drift-orange shadow-lg shadow-drift-orange/40 animate-checkbox-glow' 
+                                    : 'bg-white/10 border-white/40 hover:border-drift-orange/60 hover:bg-white/20 hover:shadow-md hover:shadow-drift-orange/20 group-hover:scale-105'
+                                }`}>
+                                  {/* Shimmer effect for unchecked state */}
+                                  {!checked[dayIdx]?.[taskIdx] && (
+                                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
+                                  )}
+                                  
+                                  {/* Checkmark with animation */}
+                                  {checked[dayIdx]?.[taskIdx] && (
+                                    <div className="relative">
+                                      {/* Glow background */}
+                                      <div className="absolute inset-0 bg-white/20 rounded-full blur-sm"></div>
+                                      <svg 
+                                        className="w-4 h-4 text-white animate-checkbox-check relative z-10" 
+                                        fill="none" 
+                                        stroke="currentColor" 
+                                        viewBox="0 0 24 24"
+                                      >
+                                        <path 
+                                          strokeLinecap="round" 
+                                          strokeLinejoin="round" 
+                                          strokeWidth={3} 
+                                          d="M5 13l4 4L19 7"
+                                        />
+                                      </svg>
+                                    </div>
+                                  )}
+                                  
+                                  {/* Sparkle effects for checked state */}
+                                  {checked[dayIdx]?.[taskIdx] && (
+                                    <>
+                                      <div className="absolute -top-1 -right-1 w-1 h-1 bg-white rounded-full animate-ping"></div>
+                                      <div className="absolute -bottom-1 -left-1 w-0.5 h-0.5 bg-white rounded-full animate-ping animation-delay-500"></div>
+                                    </>
+                                  )}
+                                </div>
+                              </label>
                             </div>
                           ) : null}
                         </td>
