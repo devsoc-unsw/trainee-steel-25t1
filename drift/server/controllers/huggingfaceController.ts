@@ -2,9 +2,22 @@ import { Request, Response } from 'express';
 import { InferenceClient } from "@huggingface/inference";
 import Schedule from '../models/Schedule';
 
-const HF_API_TOKEN = process.env.HF_API_TOKEN || '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';
+const HF_API_TOKEN = process.env.HF_API_TOKEN || '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';
 
 const client = new InferenceClient(HF_API_TOKEN);
+
+export const updateScheduleProgress = async (req: Request, res: Response) => {
+  const { scheduleId, overallProgress } = req.body;
+  if (!scheduleId || typeof overallProgress !== 'number') {
+    return res.status(400).json({ message: 'scheduleId and overallProgress are required' });
+  }
+  try {
+    await Schedule.findByIdAndUpdate(scheduleId, { overallProgress });
+    res.json({ success: true });
+  } catch (error: any) {
+    res.status(500).json({ message: 'Failed to update progress', error: error.message });
+  }
+};
 
 export const generateSchedule = async (req: Request, res: Response) => {
   const { goal, startDate, endDate, intensity } = req.body;
@@ -79,16 +92,17 @@ Wednesday, May 28|Complete first draft|Peer review;
 
 
     // Save to MongoDB
-    await Schedule.create({
-      userId: req.user?._id,
+    const saved = await Schedule.create({
+      // userId: req.user?._id,
       goal,
       startDate: todayDate,
       endDate,
       intensity,
-      rawSchedule: schedule
+      rawSchedule: schedule,
+      overallProgress: 0
     });
 
-    res.json({ schedule });
+    res.json({ schedule, scheduleId: saved._id });
 
   } catch (error: any) {
     console.error('Hugging Face API error:', error); 

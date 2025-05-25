@@ -9,7 +9,6 @@ const ScheduleGenerator: React.FC = () => {
   const [schedule, setSchedule] = useState('');
   const [loading, setLoading] = useState(false);
   const [tableData, setTableData] = useState<{ date: string; tasks: string[] }[]>([]);
-  // Track checked state for each task
   const [checked, setChecked] = useState<boolean[][]>([]);
 
   // Helper to parse schedule string into table data
@@ -25,44 +24,73 @@ const ScheduleGenerator: React.FC = () => {
       .filter(row => row.date && row.tasks.length > 0);
   };
 
-  useEffect(() => {
-  const stored = localStorage.getItem('goalData');
-  const storedSchedule = localStorage.getItem('scheduleData');
-  const storedMeta = localStorage.getItem('scheduleMeta');
-  if (stored) {
-    const data = JSON.parse(stored);
-    setGoal(data.objective || '');
-    setStartDate(new Date().toISOString().split('T')[0]);
-    setEndDate(data.deadline || '');
-    setIntensity(data.dedication || '');
-
-    // Compare meta
-    const meta = JSON.stringify({
-      objective: data.objective,
-      deadline: data.deadline,
-      dedication: data.dedication,
+  // Update progress in backend
+  const updateProgressInBackend = (progress: number) => {
+    const scheduleId = localStorage.getItem('scheduleId');
+    if (!scheduleId) return;
+    fetch('/api/huggingface/update-progress', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ scheduleId, overallProgress: progress })
     });
+  };
 
-    if (storedSchedule && storedMeta === meta) {
-      setSchedule(storedSchedule);
-      const parsed = parseScheduleToTable(storedSchedule);
-      setTableData(parsed);
-      setChecked(parsed.map(day => day.tasks.map(() => false)));
-    } else if (data.objective && data.deadline && data.dedication) {
-      setLoading(true);
-      generateSchedule(data.objective, new Date().toISOString().split('T')[0], data.deadline, data.dedication)
-        .then(result => {
-          setSchedule(result);
-          const parsed = parseScheduleToTable(result);
-          setTableData(parsed);
+  useEffect(() => {
+    const stored = localStorage.getItem('goalData');
+    const storedSchedule = localStorage.getItem('scheduleData');
+    const storedMeta = localStorage.getItem('scheduleMeta');
+    const storedChecked = localStorage.getItem('checkedState');
+    const storedScheduleId = localStorage.getItem('scheduleId');
+    if (stored) {
+      const data = JSON.parse(stored);
+      setGoal(data.objective || '');
+      setStartDate(new Date().toISOString().split('T')[0]);
+      setEndDate(data.deadline || '');
+      setIntensity(data.dedication || '');
+
+      // Compare meta
+      const meta = JSON.stringify({
+        objective: data.objective,
+        deadline: data.deadline,
+        dedication: data.dedication,
+      });
+
+      // After loading a schedule from localStorage, check if scheduleId is missing
+      if (storedSchedule && storedMeta === meta) {
+        setSchedule(storedSchedule);
+        const parsed = parseScheduleToTable(storedSchedule);
+        setTableData(parsed);
+        if (storedChecked) {
+          setChecked(JSON.parse(storedChecked));
+        } else {
           setChecked(parsed.map(day => day.tasks.map(() => false)));
-          localStorage.setItem('scheduleData', result); // Save to localStorage
-          localStorage.setItem('scheduleMeta', meta);   // Save meta
-        })
-        .finally(() => setLoading(false));
+        }
+        // If scheduleId is missing, force user to regenerate
+        const storedScheduleId = localStorage.getItem('scheduleId');
+        if (!storedScheduleId) {
+          alert('Please regenerate your schedule to enable saving progress.');
+        }
+      } else if (data.objective && data.deadline && data.dedication) {
+        setLoading(true);
+        generateSchedule(data.objective, new Date().toISOString().split('T')[0], data.deadline, data.dedication)
+          .then((result: any) => {
+            // result should be { schedule, scheduleId }
+            setSchedule(result.schedule || result);
+            const parsed = parseScheduleToTable(result.schedule || result);
+            setTableData(parsed);
+            const initialChecked = parsed.map(day => day.tasks.map(() => false));
+            setChecked(initialChecked);
+            localStorage.setItem('scheduleData', result.schedule || result); // Save to localStorage
+            localStorage.setItem('scheduleMeta', meta);   // Save meta
+            localStorage.setItem('checkedState', JSON.stringify(initialChecked));
+            if (result.scheduleId) {
+              localStorage.setItem('scheduleId', result.scheduleId);
+            }
+          })
+          .finally(() => setLoading(false));
+      }
     }
-  }
-}, []);
+  }, []);
 
   // Get all unique dates for columns
   const allDates = tableData.map(row => row.date);
@@ -75,6 +103,15 @@ const ScheduleGenerator: React.FC = () => {
     setChecked(prev => {
       const updated = prev.map(arr => [...arr]);
       updated[dayIdx][taskIdx] = !updated[dayIdx][taskIdx];
+      localStorage.setItem('checkedState', JSON.stringify(updated));
+      // Calculate progress and update backend
+      const totalTasks = tableData.reduce((sum, day) => sum + day.tasks.length, 0);
+      const completedTasks = updated.reduce(
+        (sum, dayArr) => sum + dayArr.filter(Boolean).length,
+        0
+      );
+      const progress = totalTasks === 0 ? 0 : Math.round((completedTasks / totalTasks) * 100);
+      updateProgressInBackend(progress);
       return updated;
     });
   };
@@ -88,8 +125,7 @@ const ScheduleGenerator: React.FC = () => {
   const progress = totalTasks === 0 ? 0 : Math.round((completedTasks / totalTasks) * 100);
 
   return (
-    <div style={{ maxWidth: 1500, margin: '32px auto', padding: '24px', background: '#fafcff', borderRadius: '16px', boxShadow: '0 2px 12px 0 #0001' }}>
-      {/* <h2>AI-Generated Schedule</h2> */}
+    <div style={{ maxWidth: 1100, margin: '32px auto', padding: '24px', background: '#fafcff', borderRadius: '16px', boxShadow: '0 2px 12px 0 #0001' }}>
       {loading ? (
         <p>Generating your schedule...</p>
       ) : (
@@ -102,15 +138,15 @@ const ScheduleGenerator: React.FC = () => {
           <p>{endDate}</p>
           <h3><b>Intensity:</b></h3>
           <p>{intensity}</p>
-          {/* <h3><b>Schedule:</b></h3>
-          <pre>{schedule}</pre> */}
           <div style={{ height: '24px' }} />
 
           <button
             onClick={() => {
               localStorage.removeItem('scheduleData');
               localStorage.removeItem('scheduleMeta');
-              window.location.reload(); // Or trigger a state update if you want a smoother UX
+              localStorage.removeItem('checkedState');
+              localStorage.removeItem('scheduleId');
+              window.location.reload();
             }}
             style={{
               marginBottom: 24,
@@ -275,6 +311,42 @@ const ScheduleGenerator: React.FC = () => {
                 <div style={{ textAlign: 'center', marginTop: 8, fontWeight: 500 }}>
                   {completedTasks} of {totalTasks} tasks completed
                 </div>
+                {/* Save Progress Button */}
+                <button
+                  onClick={() => {
+                    const scheduleId = localStorage.getItem('scheduleId');
+                    if (!scheduleId) {
+                      alert('No schedule ID found.');
+                      return;
+                    }
+                    fetch('/api/huggingface/update-progress', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({ scheduleId, overallProgress: progress })
+                    })
+                      .then(res => res.json())
+                      .then(data => {
+                        if (data.success) {
+                          alert('Progress saved to server!');
+                        } else {
+                          alert('Failed to save progress.');
+                        }
+                      })
+                      .catch(() => alert('Failed to save progress.'));
+                  }}
+                  style={{
+                    marginTop: 16,
+                    padding: '10px 24px',
+                    background: '#4caf50',
+                    color: '#fff',
+                    border: 'none',
+                    borderRadius: '8px',
+                    fontWeight: 600,
+                    cursor: 'pointer'
+                  }}
+                >
+                  Save Progress
+                </button>
               </div>
             </div>
           ) : (

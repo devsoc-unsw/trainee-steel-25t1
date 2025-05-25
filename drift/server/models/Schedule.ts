@@ -1,12 +1,13 @@
 import mongoose, { Document } from 'mongoose';
 
 export interface ISchedule extends Document {
-  userId?: mongoose.Types.ObjectId; // Optional, if you want to associate with a user
+  userId?: mongoose.Types.ObjectId;
   goal: string;
   startDate: string;
   endDate: string;
   intensity: string;
   rawSchedule: string;
+  overallProgress: number;
   createdAt: Date;
 }
 
@@ -21,6 +22,7 @@ const scheduleSchema = new mongoose.Schema({
   endDate: { type: String, required: true },
   intensity: { type: String, required: true },
   rawSchedule: { type: String, required: true },
+  overallProgress: { type: Number, default: 0 }, // <-- Add this line
   createdAt: { type: Date, default: Date.now }
 });
 
