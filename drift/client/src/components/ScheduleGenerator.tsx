@@ -1,5 +1,60 @@
 import React, { useEffect, useState } from 'react';
 import { generateSchedule } from '../services/huggingfaceService';
+import DriftLogo from '../assets/drift_logo.svg';
+
+// Beautiful Loading Component
+const DriftLoadingScreen: React.FC = () => {
+  return (
+    <div className="min-h-screen bg-gradient-to-b from-drift-orange via-drift-pink to-drift-blue flex items-center justify-center">
+      <div className="text-center">
+        {/* Animated Logo */}
+        <div className="relative mb-8">
+          <div className="animate-pulse">
+            <img src={DriftLogo} alt="Drift logo" className="h-32 w-32 mx-auto animate-spin-slow" />
+          </div>
+          {/* Floating particles */}
+          <div className="absolute -top-4 -left-4 w-2 h-2 bg-white rounded-full animate-ping"></div>
+          <div className="absolute -top-2 -right-6 w-1 h-1 bg-white rounded-full animate-ping animation-delay-200"></div>
+          <div className="absolute -bottom-3 -left-2 w-1.5 h-1.5 bg-white rounded-full animate-ping animation-delay-500"></div>
+          <div className="absolute -bottom-4 -right-4 w-2 h-2 bg-white rounded-full animate-ping animation-delay-700"></div>
+        </div>
+        
+        {/* Loading Text */}
+        <div className="space-y-4">
+          <h2 className="text-3xl font-bold text-white animate-pulse">
+            Crafting Your Perfect Schedule
+          </h2>
+          <p className="text-white/80 text-lg animate-fade-in-up">
+            Our AI is analyzing your goals and creating a personalized plan...
+          </p>
+          
+          {/* Loading Bar */}
+          <div className="w-80 mx-auto mt-8">
+            <div className="h-2 bg-white/20 rounded-full overflow-hidden">
+              <div className="h-full bg-gradient-to-r from-white via-drift-mauve to-white rounded-full animate-loading-bar"></div>
+            </div>
+          </div>
+          
+          {/* Loading Steps */}
+          <div className="mt-8 space-y-2 text-white/70">
+            <div className="flex items-center justify-center space-x-2 animate-fade-in-up animation-delay-1000">
+              <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
+              <span>Analyzing your goal complexity...</span>
+            </div>
+            <div className="flex items-center justify-center space-x-2 animate-fade-in-up animation-delay-2000">
+              <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
+              <span>Calculating optimal task distribution...</span>
+            </div>
+            <div className="flex items-center justify-center space-x-2 animate-fade-in-up animation-delay-3000">
+              <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
+              <span>Generating your personalized schedule...</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 const ScheduleGenerator: React.FC = () => {
   const [goal, setGoal] = useState('');
@@ -9,7 +64,6 @@ const ScheduleGenerator: React.FC = () => {
   const [schedule, setSchedule] = useState('');
   const [loading, setLoading] = useState(false);
   const [tableData, setTableData] = useState<{ date: string; tasks: string[] }[]>([]);
-  // Track checked state for each task
   const [checked, setChecked] = useState<boolean[][]>([]);
 
   // Helper to parse schedule string into table data
@@ -26,51 +80,46 @@ const ScheduleGenerator: React.FC = () => {
   };
 
   useEffect(() => {
-  const stored = localStorage.getItem('goalData');
-  const storedSchedule = localStorage.getItem('scheduleData');
-  const storedMeta = localStorage.getItem('scheduleMeta');
-  if (stored) {
-    const data = JSON.parse(stored);
-    setGoal(data.objective || '');
-    setStartDate(new Date().toISOString().split('T')[0]);
-    setEndDate(data.deadline || '');
-    setIntensity(data.dedication || '');
+    const stored = localStorage.getItem('goalData');
+    const storedSchedule = localStorage.getItem('scheduleData');
+    const storedMeta = localStorage.getItem('scheduleMeta');
+    if (stored) {
+      const data = JSON.parse(stored);
+      setGoal(data.objective || '');
+      setStartDate(new Date().toISOString().split('T')[0]);
+      setEndDate(data.deadline || '');
+      setIntensity(data.dedication || '');
 
-    // Compare meta
-    const meta = JSON.stringify({
-      objective: data.objective,
-      deadline: data.deadline,
-      dedication: data.dedication,
-    });
+      const meta = JSON.stringify({
+        objective: data.objective,
+        deadline: data.deadline,
+        dedication: data.dedication,
+      });
 
-    if (storedSchedule && storedMeta === meta) {
-      setSchedule(storedSchedule);
-      const parsed = parseScheduleToTable(storedSchedule);
-      setTableData(parsed);
-      setChecked(parsed.map(day => day.tasks.map(() => false)));
-    } else if (data.objective && data.deadline && data.dedication) {
-      setLoading(true);
-      generateSchedule(data.objective, new Date().toISOString().split('T')[0], data.deadline, data.dedication)
-        .then(result => {
-          setSchedule(result);
-          const parsed = parseScheduleToTable(result);
-          setTableData(parsed);
-          setChecked(parsed.map(day => day.tasks.map(() => false)));
-          localStorage.setItem('scheduleData', result); // Save to localStorage
-          localStorage.setItem('scheduleMeta', meta);   // Save meta
-        })
-        .finally(() => setLoading(false));
+      if (storedSchedule && storedMeta === meta) {
+        setSchedule(storedSchedule);
+        const parsed = parseScheduleToTable(storedSchedule);
+        setTableData(parsed);
+        setChecked(parsed.map(day => day.tasks.map(() => false)));
+      } else if (data.objective && data.deadline && data.dedication) {
+        setLoading(true);
+        generateSchedule(data.objective, new Date().toISOString().split('T')[0], data.deadline, data.dedication)
+          .then(result => {
+            setSchedule(result);
+            const parsed = parseScheduleToTable(result);
+            setTableData(parsed);
+            setChecked(parsed.map(day => day.tasks.map(() => false)));
+            localStorage.setItem('scheduleData', result);
+            localStorage.setItem('scheduleMeta', meta);
+          })
+          .finally(() => setLoading(false));
+      }
     }
-  }
-}, []);
+  }, []);
 
-  // Get all unique dates for columns
   const allDates = tableData.map(row => row.date);
-
-  // Find the max number of tasks for any day (for row count)
   const maxTasks = Math.max(...tableData.map(row => row.tasks.length), 0);
 
-  // Handle checkbox change
   const handleCheckboxChange = (dayIdx: number, taskIdx: number) => {
     setChecked(prev => {
       const updated = prev.map(arr => [...arr]);
@@ -79,7 +128,6 @@ const ScheduleGenerator: React.FC = () => {
     });
   };
 
-  // Calculate progress
   const totalTasks = tableData.reduce((sum, day) => sum + day.tasks.length, 0);
   const completedTasks = checked.reduce(
     (sum, dayArr) => sum + dayArr.filter(Boolean).length,
@@ -87,70 +135,69 @@ const ScheduleGenerator: React.FC = () => {
   );
   const progress = totalTasks === 0 ? 0 : Math.round((completedTasks / totalTasks) * 100);
 
-  return (
-    <div style={{ maxWidth: 1500, margin: '32px auto', padding: '24px', background: '#fafcff', borderRadius: '16px', boxShadow: '0 2px 12px 0 #0001' }}>
-      {/* <h2>AI-Generated Schedule</h2> */}
-      {loading ? (
-        <p>Generating your schedule...</p>
-      ) : (
-        <div>
-          <h3><b>Your Goal:</b></h3>
-          <p>{goal}</p>
-          <h3><b>Start Date:</b></h3>
-          <p>{startDate}</p>
-          <h3><b>End Date:</b></h3>
-          <p>{endDate}</p>
-          <h3><b>Intensity:</b></h3>
-          <p>{intensity}</p>
-          {/* <h3><b>Schedule:</b></h3>
-          <pre>{schedule}</pre> */}
-          <div style={{ height: '24px' }} />
+  if (loading) {
+    return <DriftLoadingScreen />;
+  }
 
+  return (
+    <div className="min-h-screen bg-gradient-to-b from-drift-orange via-drift-pink to-drift-blue">
+      <div className="max-w-7xl mx-auto px-4 py-8">
+        {/* Header Section */}
+        <div className="text-center mb-8">
+          <img src={DriftLogo} alt="Drift logo" className="h-16 w-16 mx-auto mb-4" />
+          <h1 className="text-4xl font-bold text-white mb-2">Your Personalized Schedule</h1>
+          <p className="text-white/80 text-lg"> Drift's plan to achieve your goals</p>
+        </div>
+
+        {/* Goal Summary Card */}
+        <div className="bg-white/10 backdrop-blur-md rounded-2xl p-6 mb-8 border border-white/20">
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="text-center">
+              <h3 className="text-white/70 text-sm font-medium mb-2">Your Goal</h3>
+              <p className="text-white font-semibold">{goal}</p>
+            </div>
+            <div className="text-center">
+              <h3 className="text-white/70 text-sm font-medium mb-2">Start Date</h3>
+              <p className="text-white font-semibold">{startDate}</p>
+            </div>
+            <div className="text-center">
+              <h3 className="text-white/70 text-sm font-medium mb-2">Target Date</h3>
+              <p className="text-white font-semibold">{endDate}</p>
+            </div>
+            <div className="text-center">
+              <h3 className="text-white/70 text-sm font-medium mb-2">Dedication Level</h3>
+              <p className="text-white font-semibold capitalize">{intensity}</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Action Buttons */}
+        <div className="flex justify-center mb-8">
           <button
             onClick={() => {
               localStorage.removeItem('scheduleData');
               localStorage.removeItem('scheduleMeta');
-              window.location.reload(); // Or trigger a state update if you want a smoother UX
+              window.location.reload();
             }}
-            style={{
-              marginBottom: 24,
-              padding: '8px 20px',
-              background: '#2196f3',
-              color: '#fff',
-              border: 'none',
-              borderRadius: '6px',
-              fontWeight: 600,
-              cursor: 'pointer'
-            }}
+            className="px-6 py-3 bg-white/20 backdrop-blur-md text-white rounded-full font-medium hover:bg-white/30 transition-all duration-300 border border-white/30 shadow-lg"
           >
             Regenerate Schedule
           </button>
+        </div>
 
-          <h3><b>Schedule Table:</b></h3>
-          {tableData.length > 0 ? (
-            <div style={{ width: '100%', overflowX: 'auto' }}>
-              <table
-                border={1}
-                cellPadding={6}
-                style={{
-                  borderCollapse: 'collapse',
-                  width: '100%',
-                  minWidth: '800px',
-                  border: '2px solid #333',
-                  background: '#fff'
-                }}
-              >
+        {/* Schedule Table */}
+        {tableData.length > 0 ? (
+          <div className="bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/20">
+            <h2 className="text-2xl font-bold text-white mb-6 text-center">Your Daily Action Plan</h2>
+            
+            <div className="overflow-x-auto">
+              <table className="w-full min-w-[800px]">
                 <thead>
                   <tr>
                     {allDates.map(date => (
                       <th
                         key={date}
-                        style={{
-                          border: '2px solid #333',
-                          background: '#f0f0f0',
-                          fontWeight: 'bold',
-                          textAlign: 'center'
-                        }}
+                        className="p-4 text-white font-semibold text-center bg-drift-blue/30 border border-white/20 rounded-t-lg"
                       >
                         {date}
                       </th>
@@ -163,78 +210,84 @@ const ScheduleGenerator: React.FC = () => {
                       {tableData.map((day, dayIdx) => (
                         <td
                           key={dayIdx}
-                          style={{
-                            border: '2px solid #333',
-                            textAlign: 'left',
-                            position: 'relative',
-                            padding: '8px 16px'
-                          }}
+                          className="p-4 border border-white/20 bg-white/5"
                         >
                           {day.tasks[taskIdx] ? (
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                              <span style={{ flex: 1, textAlign: 'left' }}>{day.tasks[taskIdx]}</span>
-                              <input
-                                type="checkbox"
-                                style={{ marginLeft: 16 }}
-                                checked={checked[dayIdx]?.[taskIdx] || false}
-                                onChange={() => handleCheckboxChange(dayIdx, taskIdx)}
-                              />
+                            <div className="flex items-center justify-between space-x-3">
+                              <span className="text-white text-sm flex-1">{day.tasks[taskIdx]}</span>
+                              <label className="relative cursor-pointer group">
+                                <input
+                                  type="checkbox"
+                                  className="sr-only"
+                                  checked={checked[dayIdx]?.[taskIdx] || false}
+                                  onChange={() => handleCheckboxChange(dayIdx, taskIdx)}
+                                />
+                                <div className={`w-6 h-6 rounded-lg border-2 transition-all duration-300 flex items-center justify-center relative overflow-hidden ${
+                                  checked[dayIdx]?.[taskIdx] 
+                                    ? 'bg-gradient-to-br from-drift-orange via-drift-pink to-drift-mauve border-drift-orange shadow-lg shadow-drift-orange/40 animate-checkbox-glow' 
+                                    : 'bg-white/10 border-white/40 hover:border-drift-orange/60 hover:bg-white/20 hover:shadow-md hover:shadow-drift-orange/20 group-hover:scale-105'
+                                }`}>
+                                  {/* Shimmer effect for unchecked state */}
+                                  {!checked[dayIdx]?.[taskIdx] && (
+                                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
+                                  )}
+                                  
+                                  {/* Checkmark with animation */}
+                                  {checked[dayIdx]?.[taskIdx] && (
+                                    <div className="relative">
+                                      {/* Glow background */}
+                                      <div className="absolute inset-0 bg-white/20 rounded-full blur-sm"></div>
+                                      <svg 
+                                        className="w-4 h-4 text-white animate-checkbox-check relative z-10" 
+                                        fill="none" 
+                                        stroke="currentColor" 
+                                        viewBox="0 0 24 24"
+                                      >
+                                        <path 
+                                          strokeLinecap="round" 
+                                          strokeLinejoin="round" 
+                                          strokeWidth={3} 
+                                          d="M5 13l4 4L19 7"
+                                        />
+                                      </svg>
+                                    </div>
+                                  )}
+                                  
+                                  {/* Sparkle effects for checked state */}
+                                  {checked[dayIdx]?.[taskIdx] && (
+                                    <>
+                                      <div className="absolute -top-1 -right-1 w-1 h-1 bg-white rounded-full animate-ping"></div>
+                                      <div className="absolute -bottom-1 -left-1 w-0.5 h-0.5 bg-white rounded-full animate-ping animation-delay-500"></div>
+                                    </>
+                                  )}
+                                </div>
+                              </label>
                             </div>
-                          ) : ''}
+                          ) : null}
                         </td>
                       ))}
                     </tr>
                   ))}
-                  {/* Per-day progress bars */}
+                  
+                  {/* Daily Progress Bars */}
                   <tr>
                     {tableData.map((day, dayIdx) => {
                       const dayTotal = day.tasks.length;
-                      const dayCompleted =
-                        checked[dayIdx]?.filter(Boolean).length || 0;
-                      const dayProgress =
-                        dayTotal === 0
-                          ? 0
-                          : Math.round((dayCompleted / dayTotal) * 100);
+                      const dayCompleted = checked[dayIdx]?.filter(Boolean).length || 0;
+                      const dayProgress = dayTotal === 0 ? 0 : Math.round((dayCompleted / dayTotal) * 100);
+                      
                       return (
-                        <td
-                          key={dayIdx}
-                          colSpan={1}
-                          style={{
-                            border: '2px solid #333',
-                            background: '#fafafa',
-                            padding: '8px 16px'
-                          }}
-                        >
-                          <div style={{ width: '100%' }}>
-                            <div
-                              style={{
-                                height: '16px',
-                                width: '100%',
-                                background: '#eee',
-                                borderRadius: '8px',
-                                overflow: 'hidden',
-                                border: '1px solid #bbb',
-                                boxSizing: 'border-box'
-                              }}
-                            >
+                        <td key={dayIdx} className="p-4 border border-white/20 bg-drift-blue/20">
+                          <div className="space-y-2">
+                            <div className="h-3 bg-white/20 rounded-full overflow-hidden">
                               <div
-                                style={{
-                                  height: '100%',
-                                  width: `${dayProgress}%`,
-                                  background: dayProgress === 100 ? '#4caf50' : '#2196f3',
-                                  transition: 'width 0.3s',
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  justifyContent: 'center',
-                                  color: '#fff',
-                                  fontWeight: 'bold',
-                                  fontSize: '12px'
-                                }}
-                              >
-                                {dayProgress}%
-                              </div>
+                                className={`h-full rounded-full transition-all duration-500 ${
+                                  dayProgress === 100 ? 'bg-green-400' : 'bg-drift-orange'
+                                }`}
+                                style={{ width: `${dayProgress}%` }}
+                              />
                             </div>
-                            <div style={{ textAlign: 'center', marginTop: 2, fontSize: '12px' }}>
+                            <div className="text-center text-white text-xs">
                               {dayCompleted} of {dayTotal} done
                             </div>
                           </div>
@@ -244,44 +297,241 @@ const ScheduleGenerator: React.FC = () => {
                   </tr>
                 </tbody>
               </table>
-              {/* Overall Progress Bar */}
-              <div style={{ marginTop: 32, width: '100%' }}>
-                <h4 style={{ marginBottom: 8 }}>Overall Progress</h4>
-                <div style={{
-                  height: '24px',
-                  width: '100%',
-                  background: '#eee',
-                  borderRadius: '12px',
-                  overflow: 'hidden',
-                  border: '1.5px solid #333',
-                  boxSizing: 'border-box'
-                }}>
-                  <div
-                    style={{
-                      height: '100%',
-                      width: `${progress}%`,
-                      background: progress === 100 ? '#4caf50' : '#2196f3',
-                      transition: 'width 0.3s',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      color: '#fff',
-                      fontWeight: 'bold'
-                    }}
-                  >
-                    {progress}%
+            </div>
+
+            {/* Tree Progress Visualization */}
+            <div className="mt-8">
+              <h3 className="text-xl font-semibold text-white mb-8 text-center">Your Growth Journey</h3>
+              <div className="max-w-lg mx-auto">
+                {/* Tree Container */}
+                <div className="relative flex flex-col items-center">
+                  {/* Tree Crown/Leaves */}
+                  <div className="relative mb-4">
+                    {/* Main tree crown */}
+                    <div className={`w-32 h-32 rounded-full transition-all duration-1000 ${
+                      progress === 100 ? 'bg-gradient-to-br from-emerald-300 via-green-400 to-emerald-600 shadow-2xl shadow-emerald-400/60 animate-tree-complete' :
+                      progress >= 80 ? 'bg-gradient-to-br from-green-400 via-green-500 to-emerald-600 shadow-lg shadow-green-400/40' :
+                      progress >= 60 ? 'bg-gradient-to-br from-yellow-400 via-green-400 to-green-500 shadow-lg shadow-yellow-400/40' :
+                      progress >= 40 ? 'bg-gradient-to-br from-orange-400 via-yellow-400 to-green-400 shadow-lg shadow-orange-400/40' :
+                      progress >= 20 ? 'bg-gradient-to-br from-drift-orange via-orange-400 to-yellow-400 shadow-lg shadow-drift-orange/40' :
+                      'bg-gradient-to-br from-white/20 via-white/30 to-drift-orange/40 shadow-lg shadow-white/20'
+                    } relative overflow-hidden`}>
+                      
+                      {/* 100% Completion Special Effects */}
+                      {progress === 100 && (
+                        <>
+                          {/* Radial glow effect */}
+                          <div className="absolute inset-0 bg-gradient-radial from-emerald-200/40 via-green-300/30 to-transparent animate-pulse-glow"></div>
+                          
+                          {/* Multiple sparkle layers */}
+                          <div className="absolute top-1 left-2 w-2 h-2 bg-white rounded-full animate-sparkle-burst-1"></div>
+                          <div className="absolute top-4 right-2 w-1.5 h-1.5 bg-yellow-200 rounded-full animate-sparkle-burst-2"></div>
+                          <div className="absolute bottom-3 left-4 w-2.5 h-2.5 bg-emerald-200 rounded-full animate-sparkle-burst-3"></div>
+                          <div className="absolute bottom-1 right-4 w-1 h-1 bg-white rounded-full animate-sparkle-burst-4"></div>
+                          <div className="absolute top-8 left-8 w-1.5 h-1.5 bg-green-200 rounded-full animate-sparkle-burst-5"></div>
+                          <div className="absolute top-12 right-6 w-1 h-1 bg-white rounded-full animate-sparkle-burst-6"></div>
+                          
+                          {/* Magical energy waves */}
+                          <div className="absolute inset-0 rounded-full border-2 border-emerald-300/50 animate-energy-wave-1"></div>
+                          <div className="absolute inset-0 rounded-full border border-green-200/40 animate-energy-wave-2"></div>
+                          
+                          {/* Success shimmer */}
+                          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-emerald-200/40 to-transparent -translate-x-full animate-success-shimmer"></div>
+                        </>
+                      )}
+                      
+                      {/* Regular sparkle effects for 80%+ */}
+                      {progress >= 80 && progress < 100 && (
+                        <>
+                          <div className="absolute top-2 left-4 w-1 h-1 bg-white rounded-full animate-ping"></div>
+                          <div className="absolute top-6 right-3 w-1.5 h-1.5 bg-white rounded-full animate-ping animation-delay-300"></div>
+                          <div className="absolute bottom-4 left-6 w-1 h-1 bg-white rounded-full animate-ping animation-delay-600"></div>
+                          <div className="absolute bottom-2 right-5 w-0.5 h-0.5 bg-white rounded-full animate-ping animation-delay-900"></div>
+                        </>
+                      )}
+                      
+                      {/* Growth shimmer effect */}
+                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full animate-shimmer"></div>
+                    </div>
+                    
+                    {/* Side branches */}
+                    <div className={`absolute -left-6 top-8 w-16 h-16 rounded-full transition-all duration-1000 ${
+                      progress === 100 ? 'bg-gradient-to-br from-emerald-300 to-green-500 opacity-90 shadow-lg shadow-emerald-400/40 animate-branch-glow' :
+                      progress >= 60 ? 'bg-gradient-to-br from-green-400 to-green-500 opacity-80' :
+                      progress >= 30 ? 'bg-gradient-to-br from-yellow-400 to-green-400 opacity-60' :
+                      'bg-white/10 opacity-40'
+                    }`}>
+                      {/* 100% branch sparkles */}
+                      {progress === 100 && (
+                        <>
+                          <div className="absolute top-2 right-2 w-1 h-1 bg-white rounded-full animate-ping"></div>
+                          <div className="absolute bottom-3 left-3 w-0.5 h-0.5 bg-emerald-200 rounded-full animate-ping animation-delay-500"></div>
+                        </>
+                      )}
+                    </div>
+                    <div className={`absolute -right-6 top-12 w-12 h-12 rounded-full transition-all duration-1000 ${
+                      progress === 100 ? 'bg-gradient-to-br from-emerald-300 to-green-500 opacity-85 shadow-lg shadow-emerald-400/30 animate-branch-glow' :
+                      progress >= 70 ? 'bg-gradient-to-br from-green-400 to-green-500 opacity-70' :
+                      progress >= 40 ? 'bg-gradient-to-br from-yellow-400 to-green-400 opacity-50' :
+                      'bg-white/10 opacity-30'
+                    }`}>
+                      {/* 100% branch sparkles */}
+                      {progress === 100 && (
+                        <>
+                          <div className="absolute top-1 left-2 w-0.5 h-0.5 bg-white rounded-full animate-ping animation-delay-700"></div>
+                          <div className="absolute bottom-2 right-1 w-1 h-1 bg-emerald-200 rounded-full animate-ping animation-delay-200"></div>
+                        </>
+                      )}
+                    </div>
+                    
+                    {/* 100% Completion Extra Branches */}
+                    {progress === 100 && (
+                      <>
+                        <div className="absolute -left-10 top-4 w-8 h-8 rounded-full bg-gradient-to-br from-emerald-200 to-green-400 opacity-70 shadow-md shadow-emerald-300/40 animate-extra-branch-1">
+                          <div className="absolute top-1 right-1 w-0.5 h-0.5 bg-white rounded-full animate-ping"></div>
+                        </div>
+                        <div className="absolute -right-8 top-6 w-6 h-6 rounded-full bg-gradient-to-br from-emerald-200 to-green-400 opacity-60 shadow-md shadow-emerald-300/30 animate-extra-branch-2">
+                          <div className="absolute bottom-1 left-1 w-0.5 h-0.5 bg-white rounded-full animate-ping animation-delay-400"></div>
+                        </div>
+                        <div className="absolute -left-4 top-16 w-4 h-4 rounded-full bg-gradient-to-br from-emerald-200 to-green-400 opacity-50 animate-extra-branch-3"></div>
+                      </>
+                    )}
                   </div>
+                  
+                  {/* Tree Trunk */}
+                  <div className="relative">
+                    {/* Main trunk */}
+                    <div className={`w-8 h-24 rounded-lg shadow-lg relative overflow-hidden transition-all duration-1000 ${
+                      progress === 100 ? 'bg-gradient-to-b from-amber-600 via-amber-700 to-amber-800 shadow-xl shadow-amber-600/40' : 'bg-gradient-to-b from-amber-700 via-amber-800 to-amber-900'
+                    }`}>
+                      {/* Progress fill in trunk */}
+                      <div 
+                        className={`absolute bottom-0 left-0 right-0 transition-all duration-1000 rounded-lg ${
+                          progress === 100 ? 'bg-gradient-to-t from-emerald-400 via-green-400 to-emerald-300 shadow-inner shadow-emerald-500/50' : 'bg-gradient-to-t from-drift-orange via-drift-pink to-drift-mauve'
+                        }`}
+                        style={{ height: `${progress}%` }}
+                      >
+                        {/* 100% trunk glow effect */}
+                        {progress === 100 && (
+                          <div className="absolute inset-0 bg-gradient-to-t from-emerald-200/30 via-green-300/20 to-emerald-200/30 animate-trunk-glow"></div>
+                        )}
+                      </div>
+                      
+                      {/* Trunk texture lines */}
+                      <div className="absolute inset-0 flex flex-col justify-around opacity-30">
+                        <div className="h-px bg-amber-600"></div>
+                        <div className="h-px bg-amber-600"></div>
+                        <div className="h-px bg-amber-600"></div>
+                      </div>
+                      
+                      {/* 100% completion trunk sparkles */}
+                      {progress === 100 && (
+                        <>
+                          <div className="absolute top-4 left-1 w-0.5 h-0.5 bg-emerald-200 rounded-full animate-ping animation-delay-300"></div>
+                          <div className="absolute top-12 right-1 w-0.5 h-0.5 bg-white rounded-full animate-ping animation-delay-800"></div>
+                          <div className="absolute bottom-8 left-2 w-0.5 h-0.5 bg-emerald-200 rounded-full animate-ping animation-delay-1000"></div>
+                        </>
+                      )}
+                    </div>
+                    
+                    {/* Small branches */}
+                    <div className={`absolute -left-3 top-4 w-6 h-1 rounded-full transition-all duration-700 ${
+                      progress >= 25 ? 'bg-amber-700' : 'bg-white/20'
+                    } rotate-45`}></div>
+                    <div className={`absolute -right-3 top-8 w-4 h-1 rounded-full transition-all duration-700 ${
+                      progress >= 50 ? 'bg-amber-700' : 'bg-white/20'
+                    } -rotate-45`}></div>
+                    <div className={`absolute -left-2 top-12 w-3 h-1 rounded-full transition-all duration-700 ${
+                      progress >= 75 ? 'bg-amber-700' : 'bg-white/20'
+                    } rotate-30`}></div>
+                  </div>
+                  
+                  {/* Tree Roots/Base */}
+                  <div className="relative mt-2">
+                    <div className="w-20 h-4 bg-gradient-to-b from-amber-900 to-amber-950 rounded-full opacity-60"></div>
+                    {/* Root lines */}
+                    <div className="absolute -left-2 -top-1 w-8 h-1 bg-amber-900 rounded-full opacity-40 rotate-12"></div>
+                    <div className="absolute -right-2 -top-1 w-6 h-1 bg-amber-900 rounded-full opacity-40 -rotate-12"></div>
+                  </div>
+                  
+                  {/* Floating leaves/particles */}
+                  {progress === 100 ? (
+                    <>
+                      {/* 100% Celebration Particles */}
+                      <div className="absolute -top-6 -left-12 w-3 h-3 bg-emerald-300 rounded-full animate-celebration-burst-1 opacity-80"></div>
+                      <div className="absolute -top-8 right-10 w-2.5 h-2.5 bg-green-300 rounded-full animate-celebration-burst-2 opacity-90"></div>
+                      <div className="absolute top-2 -right-14 w-2 h-2 bg-emerald-400 rounded-full animate-celebration-burst-3 opacity-75"></div>
+                      <div className="absolute -top-4 left-12 w-1.5 h-1.5 bg-white rounded-full animate-celebration-burst-4 opacity-85"></div>
+                      <div className="absolute top-6 -left-16 w-2 h-2 bg-green-200 rounded-full animate-celebration-burst-5 opacity-70"></div>
+                      <div className="absolute -top-2 -right-8 w-1 h-1 bg-emerald-200 rounded-full animate-celebration-burst-6 opacity-80"></div>
+                      
+                      {/* Golden confetti */}
+                      <div className="absolute -top-10 left-4 w-1 h-1 bg-yellow-300 rounded-full animate-confetti-1 opacity-90"></div>
+                      <div className="absolute -top-12 right-6 w-1.5 h-1.5 bg-yellow-400 rounded-full animate-confetti-2 opacity-85"></div>
+                      <div className="absolute -top-8 -left-2 w-1 h-1 bg-yellow-200 rounded-full animate-confetti-3 opacity-80"></div>
+                      
+                      {/* Success aura */}
+                      <div className="absolute -inset-8 rounded-full border border-emerald-300/30 animate-success-aura-1"></div>
+                      <div className="absolute -inset-12 rounded-full border border-green-200/20 animate-success-aura-2"></div>
+                    </>
+                  ) : progress >= 60 && (
+                    <>
+                      <div className="absolute -top-4 -left-8 w-2 h-2 bg-green-400 rounded-full animate-float-leaf-1 opacity-70"></div>
+                      <div className="absolute -top-2 right-8 w-1.5 h-1.5 bg-yellow-400 rounded-full animate-float-leaf-2 opacity-60"></div>
+                      <div className="absolute top-4 -right-10 w-1 h-1 bg-green-500 rounded-full animate-float-leaf-3 opacity-80"></div>
+                    </>
+                  )}
                 </div>
-                <div style={{ textAlign: 'center', marginTop: 8, fontWeight: 500 }}>
-                  {completedTasks} of {totalTasks} tasks completed
-                </div>
+                
+                                 {/* Progress Text */}
+                 <div className="text-center text-white mt-6">
+                   <div className="mb-2">
+                     <span className={`text-3xl font-bold ${
+                       progress === 100 ? 'bg-gradient-to-r from-emerald-300 via-green-400 to-emerald-500 bg-clip-text text-transparent animate-pulse' : 'bg-gradient-to-r from-drift-orange via-drift-pink to-drift-mauve bg-clip-text text-transparent'
+                     }`}>
+                       {progress}%
+                     </span>
+                     {progress === 100 && (
+                       <div className="mt-2">
+                         <span className="text-xl mx-2 text-emerald-300 font-bold animate-pulse">COMPLETE!</span>
+                       </div>
+                     )}
+                   </div>
+                   <p className={`text-lg ${
+                     progress === 100 ? 'text-emerald-200 font-semibold' : 'text-white/80'
+                   }`}>
+                     {completedTasks} of {totalTasks} tasks completed
+                   </p>
+                   <p className={`text-sm mt-1 ${
+                     progress === 100 ? 'text-emerald-300 font-medium text-base' : 'text-white/60'
+                   }`}>
+                     {progress >= 100 ? 'Congratulations! Your goal is achieved and your tree has reached full bloom!' :
+                      progress >= 80 ? 'Almost there! Your tree is flourishing!' :
+                      progress >= 60 ? 'Great progress! Your tree is growing strong!' :
+                      progress >= 40 ? 'Keep going! Your tree is taking shape!' :
+                      progress >= 20 ? 'Good start! Your tree is sprouting!' :
+                      'Plant the seed of success!'}
+                   </p>
+                   
+                   {/* 100% Celebration Message */}
+                                        {progress === 100 && (
+                       <div className="mt-4 p-4 bg-emerald-500/20 backdrop-blur-sm rounded-lg border border-emerald-400/30">
+                         <p className="text-emerald-200 font-medium">
+                           Amazing work! You've successfully completed your journey. 
+                           Your dedication has grown into something beautiful!
+                         </p>
+                       </div>
+                     )}
+                 </div>
               </div>
             </div>
-          ) : (
-            <p>No schedule data available.</p>
-          )}
-        </div>
-      )}
+          </div>
+        ) : (
+          <div className="text-center text-white">
+            <p className="text-xl">No schedule data available.</p>
+          </div>
+        )}
+      </div>
     </div>
   );
 };
