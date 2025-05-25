@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ChevronLeft, ChevronRight, Grid, Play, Calendar, Target, Clock, Music, Dumbbell, Book, Briefcase, Heart, Star } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Grid, Play, Calendar, Target, Clock, Music, Dumbbell, Book, Briefcase, Heart, Star, X, Image as ImageIcon } from 'lucide-react';
 import { getUserAchievements, Achievement } from '../../services/achievementService';
 import DriftLogo from '../../assets/drift_logo.svg';
 
@@ -28,6 +28,9 @@ const AchievementArchive: React.FC = () => {
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [showImageModal, setShowImageModal] = useState(false);
+  const [selectedAchievement, setSelectedAchievement] = useState<Achievement | null>(null);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
   useEffect(() => {
     const fetchAchievements = async () => {
@@ -80,6 +83,32 @@ const AchievementArchive: React.FC = () => {
       month: 'long',
       day: 'numeric'
     });
+  };
+
+  const openImageModal = (achievement: Achievement) => {
+    if (achievement.images && achievement.images.length > 0) {
+      setSelectedAchievement(achievement);
+      setCurrentImageIndex(0);
+      setShowImageModal(true);
+    }
+  };
+
+  const closeImageModal = () => {
+    setShowImageModal(false);
+    setSelectedAchievement(null);
+    setCurrentImageIndex(0);
+  };
+
+  const nextImage = () => {
+    if (selectedAchievement && selectedAchievement.images) {
+      setCurrentImageIndex((prev) => (prev + 1) % selectedAchievement.images.length);
+    }
+  };
+
+  const prevImage = () => {
+    if (selectedAchievement && selectedAchievement.images) {
+      setCurrentImageIndex((prev) => (prev - 1 + selectedAchievement.images.length) % selectedAchievement.images.length);
+    }
   };
 
   if (loading) {
@@ -184,9 +213,12 @@ const AchievementArchive: React.FC = () => {
 
                                     {/* Achievement Card */}
             <div className="w-full max-w-2xl mx-4 md:mx-16">
-              <div className={`bg-white rounded-2xl md:rounded-3xl shadow-2xl overflow-hidden transition-all duration-300 ${
-                isTransitioning ? 'opacity-0 scale-95' : 'opacity-100 scale-100'
-              }`}>
+              <div 
+                className={`bg-white rounded-2xl md:rounded-3xl shadow-2xl overflow-hidden transition-all duration-300 cursor-pointer hover:shadow-3xl ${
+                  isTransitioning ? 'opacity-0 scale-95' : 'opacity-100 scale-100'
+                }`}
+                onClick={() => openImageModal(currentGoal)}
+              >
                 {/* Image Section */}
                 <div className="relative h-48 md:h-80 bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
                                   {/* Placeholder for achievement image - using icon for now */}
@@ -201,6 +233,16 @@ const AchievementArchive: React.FC = () => {
                     <span className="text-gray-700 font-medium text-sm">Achievement</span>
                   </div>
                 </div>
+
+                {/* Image indicator */}
+                {currentGoal?.images && currentGoal.images.length > 0 && (
+                  <div className="absolute top-6 right-6">
+                    <div className="bg-blue-500 text-white rounded-full px-3 py-2 flex items-center space-x-2 shadow-lg">
+                      <ImageIcon className="h-4 w-4" />
+                      <span className="text-sm font-medium">{currentGoal.images.length}</span>
+                    </div>
+                  </div>
+                )}
               </div>
 
                               {/* Content Section */}
@@ -318,11 +360,17 @@ const AchievementArchive: React.FC = () => {
                 <div
                   key={goal._id}
                   className="bg-white rounded-2xl p-6 shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 cursor-pointer"
+                  onClick={() => openImageModal(goal)}
                 >
                   <div className="text-center mb-4">
                     <div className="w-24 h-24 mx-auto mb-4 rounded-xl bg-gradient-to-br from-drift-orange/20 via-drift-pink/20 to-drift-blue/20 flex items-center justify-center relative">
                       <IconComponent className="h-12 w-12 text-drift-blue" />
                       <div className="absolute top-1 right-1 w-2 h-2 bg-yellow-400 rounded-full"></div>
+                      {goal.images && goal.images.length > 0 && (
+                        <div className="absolute bottom-1 left-1 bg-blue-500 text-white rounded-full p-1">
+                          <ImageIcon className="h-3 w-3" />
+                        </div>
+                      )}
                     </div>
                     
                     <h3 className="text-xl font-bold text-gray-800 mb-2">{goal.name}</h3>
@@ -367,6 +415,97 @@ const AchievementArchive: React.FC = () => {
           </div>
         )}
 
+        {/* Image Modal */}
+        {showImageModal && selectedAchievement && selectedAchievement.images && selectedAchievement.images.length > 0 && (
+          <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden">
+              {/* Modal Header */}
+              <div className="p-6 border-b border-gray-200">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="text-xl font-bold text-gray-800">{selectedAchievement.name}</h3>
+                    <p className="text-gray-600 text-sm">
+                      {selectedAchievement.images.length} photo{selectedAchievement.images.length > 1 ? 's' : ''}
+                    </p>
+                  </div>
+                  <button
+                    onClick={closeImageModal}
+                    className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                  >
+                    <X className="h-6 w-6 text-gray-600" />
+                  </button>
+                </div>
+              </div>
+
+              {/* Image Display */}
+              <div className="relative">
+                <div className="aspect-video bg-gray-100 flex items-center justify-center">
+                  <img
+                    src={`http://localhost:5000/uploads/${selectedAchievement.images[currentImageIndex]}`}
+                    alt={`Achievement photo ${currentImageIndex + 1}`}
+                    className="max-w-full max-h-full object-contain"
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement;
+                      target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTIxIDNIMTBMMTAgMTNIMjFWM1oiIGZpbGw9IiNGM0Y0RjYiLz4KPHA+SW1hZ2UgTm90IEZvdW5kPC9wPgo8L3N2Zz4K';
+                    }}
+                  />
+                </div>
+
+                {/* Navigation Arrows */}
+                {selectedAchievement.images.length > 1 && (
+                  <>
+                    <button
+                      onClick={prevImage}
+                      className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white rounded-full p-3 transition-all duration-200"
+                    >
+                      <ChevronLeft className="h-6 w-6" />
+                    </button>
+                    <button
+                      onClick={nextImage}
+                      className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white rounded-full p-3 transition-all duration-200"
+                    >
+                      <ChevronRight className="h-6 w-6" />
+                    </button>
+                  </>
+                )}
+
+                {/* Image Counter */}
+                {selectedAchievement.images.length > 1 && (
+                  <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-black/50 text-white px-3 py-1 rounded-full text-sm">
+                    {currentImageIndex + 1} / {selectedAchievement.images.length}
+                  </div>
+                )}
+              </div>
+
+              {/* Image Thumbnails */}
+              {selectedAchievement.images.length > 1 && (
+                <div className="p-4 border-t border-gray-200">
+                  <div className="flex gap-2 overflow-x-auto">
+                    {selectedAchievement.images.map((image: string, index: number) => (
+                      <button
+                        key={index}
+                        onClick={() => setCurrentImageIndex(index)}
+                        className={`flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden border-2 transition-all duration-200 ${
+                          index === currentImageIndex ? 'border-blue-500' : 'border-gray-200 hover:border-gray-300'
+                        }`}
+                      >
+                        <img
+                          src={`http://localhost:5000/uploads/${image}`}
+                          alt={`Thumbnail ${index + 1}`}
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            const target = e.target as HTMLImageElement;
+                            target.style.display = 'none';
+                          }}
+                        />
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
 
       </div>
     </div>
