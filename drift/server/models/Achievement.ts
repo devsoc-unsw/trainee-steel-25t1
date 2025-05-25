@@ -8,6 +8,7 @@ export interface IAchievement extends Document {
   completedDate: Date;
   totalTasks: number;
   userId: mongoose.Types.ObjectId;
+  images: string[]; // Array of image file paths
   createdAt: Date;
 }
 
@@ -44,6 +45,10 @@ const achievementSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
     required: true
+  },
+  images: {
+    type: [String],
+    default: []
   },
   createdAt: {
     type: Date,

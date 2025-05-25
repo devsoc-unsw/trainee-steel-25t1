@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { Target } from 'lucide-react';
+import { Target, Camera, X, Upload } from 'lucide-react';
 import { generateSchedule } from '../services/huggingfaceService';
-import { createAchievement } from '../services/achievementService';
+import { createAchievement, createAchievementWithImages } from '../services/achievementService';
 import DriftLogo from '../assets/drift_logo.svg';
 
 // Beautiful Loading Component
@@ -72,6 +72,8 @@ const ScheduleGenerator: React.FC = () => {
   const [goalSaved, setGoalSaved] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
   const [saveSuccess, setSaveSuccess] = useState(false);
+  const [uploadedImages, setUploadedImages] = useState<File[]>([]);
+  const [showImageUpload, setShowImageUpload] = useState(false);
 
   // Helper to parse schedule string into table data
   const parseScheduleToTable = (scheduleStr: string) => {
@@ -200,6 +202,56 @@ const ScheduleGenerator: React.FC = () => {
     setShowSaveModal(false);
   };
 
+  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files;
+    if (files) {
+      const newImages = Array.from(files).slice(0, 10 - uploadedImages.length); // Limit to 10 total images
+      setUploadedImages(prev => [...prev, ...newImages]);
+    }
+  };
+
+  const removeImage = (index: number) => {
+    setUploadedImages(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const saveGoalWithImages = async () => {
+    try {
+      setSaveError(null);
+      
+      const achievementData = {
+        name: goalName,
+        objective: goal,
+        deadline: endDate,
+        dedication: intensity,
+        completedDate: new Date().toISOString(),
+        totalTasks: totalTasks
+      };
+
+      console.log('Attempting to save achievement with images:', achievementData, uploadedImages);
+      
+      if (uploadedImages.length > 0) {
+        await createAchievementWithImages(achievementData, uploadedImages);
+      } else {
+        await createAchievement(achievementData);
+      }
+      
+      // Mark this goal as saved to prevent duplicate saves
+      const savedKey = `goal_saved_${goalName}_${endDate}`;
+      localStorage.setItem(savedKey, 'true');
+      
+      setGoalSaved(true);
+      setShowSaveModal(false);
+      setSaveSuccess(true);
+      
+      // Hide success message after 3 seconds
+      setTimeout(() => setSaveSuccess(false), 3000);
+    } catch (error) {
+      console.error('Error saving achievement:', error);
+      setSaveError(error instanceof Error ? error.message : 'Failed to save achievement');
+      // Don't close modal on error, let user try again
+    }
+  };
+
   if (loading) {
     return <DriftLoadingScreen />;
   }
@@ -267,7 +319,7 @@ const ScheduleGenerator: React.FC = () => {
         </div>
 
         {/* Action Buttons */}
-        <div className="flex justify-center mb-8">
+        <div className="flex justify-center gap-4 mb-8">
           <button
             onClick={() => {
               localStorage.removeItem('scheduleData');
@@ -278,7 +330,77 @@ const ScheduleGenerator: React.FC = () => {
           >
             Regenerate Schedule
           </button>
+          
+          <button
+            onClick={() => setShowImageUpload(!showImageUpload)}
+            className="px-6 py-3 bg-white/20 backdrop-blur-md text-white rounded-full font-medium hover:bg-white/30 transition-all duration-300 border border-white/30 shadow-lg flex items-center gap-2"
+          >
+            <Camera className="h-5 w-5" />
+            Add Photos ({uploadedImages.length})
+          </button>
         </div>
+
+        {/* Image Upload Section */}
+        {showImageUpload && (
+          <div className="bg-white/10 backdrop-blur-md rounded-2xl p-6 mb-8 border border-white/20">
+            <h3 className="text-white text-lg font-semibold mb-4 text-center">
+              📸 Capture Your Journey
+            </h3>
+            <p className="text-white/70 text-sm text-center mb-6">
+              Upload photos of your progress, achievements, or anything related to your goal!
+            </p>
+            
+            {/* Upload Area */}
+            <div className="relative">
+              <input
+                type="file"
+                multiple
+                accept="image/*"
+                onChange={handleImageUpload}
+                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                disabled={uploadedImages.length >= 10}
+              />
+              <div className={`border-2 border-dashed border-white/30 rounded-lg p-8 text-center transition-all duration-300 ${
+                uploadedImages.length >= 10 ? 'opacity-50 cursor-not-allowed' : 'hover:border-white/50 hover:bg-white/5 cursor-pointer'
+              }`}>
+                <Upload className="h-12 w-12 text-white/60 mx-auto mb-4" />
+                <p className="text-white/80 font-medium mb-2">
+                  {uploadedImages.length >= 10 ? 'Maximum 10 images reached' : 'Click to upload images'}
+                </p>
+                <p className="text-white/60 text-sm">
+                  {uploadedImages.length >= 10 ? '' : `You can upload up to ${10 - uploadedImages.length} more images`}
+                </p>
+              </div>
+            </div>
+
+            {/* Uploaded Images Preview */}
+            {uploadedImages.length > 0 && (
+              <div className="mt-6">
+                <h4 className="text-white font-medium mb-3">Uploaded Images ({uploadedImages.length}/10)</h4>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  {uploadedImages.map((image, index) => (
+                    <div key={index} className="relative group">
+                      <img
+                        src={URL.createObjectURL(image)}
+                        alt={`Upload ${index + 1}`}
+                        className="w-full h-24 object-cover rounded-lg border border-white/20"
+                      />
+                      <button
+                        onClick={() => removeImage(index)}
+                        className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                      >
+                        <X className="h-4 w-4" />
+                      </button>
+                      <div className="absolute bottom-1 left-1 bg-black/50 text-white text-xs px-2 py-1 rounded">
+                        {image.name.length > 15 ? `${image.name.substring(0, 15)}...` : image.name}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Schedule Table */}
         {tableData.length > 0 ? (
@@ -641,6 +763,11 @@ const ScheduleGenerator: React.FC = () => {
               
               <p className="text-white/70 mb-6">
                 Would you like to save this achievement to your Achievement Archive?
+                {uploadedImages.length > 0 && (
+                  <span className="block text-sm text-emerald-300 mt-2">
+                    📸 {uploadedImages.length} photo{uploadedImages.length > 1 ? 's' : ''} will be included
+                  </span>
+                )}
               </p>
               
               {saveError && (
@@ -651,7 +778,7 @@ const ScheduleGenerator: React.FC = () => {
               
               <div className="flex space-x-4">
                 <button
-                  onClick={saveGoal}
+                  onClick={saveGoalWithImages}
                   className="flex-1 px-6 py-3 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-200 rounded-lg font-medium transition-all duration-300 border border-emerald-400/30"
                 >
                   Save Achievement

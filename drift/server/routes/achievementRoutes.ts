@@ -6,6 +6,7 @@ import {
   getAchievementStats 
 } from '../controllers/achievementController';
 import { protect } from '../middleware/authMiddleware';
+import upload from '../middleware/uploadMiddleware';
 
 const router = express.Router();
 
@@ -19,7 +20,7 @@ router.get('/stats', getAchievementStats);
 router.get('/', getUserAchievements);
 
 // POST /api/achievements - Create new achievement
-router.post('/', createAchievement);
+router.post('/', upload.array('images', 10), createAchievement);
 
 // DELETE /api/achievements/:achievementId - Delete achievement
 router.delete('/:achievementId', deleteAchievement);

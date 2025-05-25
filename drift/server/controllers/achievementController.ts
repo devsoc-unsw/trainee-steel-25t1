@@ -61,6 +61,14 @@ export const createAchievement = async (req: Request, res: Response) => {
       });
     }
 
+    // Handle uploaded images
+    const images: string[] = [];
+    if (req.files && Array.isArray(req.files)) {
+      req.files.forEach((file: any) => {
+        images.push(file.filename);
+      });
+    }
+
     const achievement = new Achievement({
       name: name.trim(),
       objective: objective.trim(),
@@ -68,6 +76,7 @@ export const createAchievement = async (req: Request, res: Response) => {
       dedication,
       completedDate: new Date(completedDate),
       totalTasks: parseInt(totalTasks),
+      images,
       userId: new mongoose.Types.ObjectId(userId)
     });
 
