@@ -4,12 +4,16 @@ import cookieParser from 'cookie-parser';
 import goalRoutes from './routes/goalRoutes';
 import authRoutes from './routes/authRoutes';
 import huggingfaceRoutes from './routes/huggingfaceRoutes';
+import achievementRoutes from './routes/achievementRoutes';
 
 // Initialize express app
 const app = express();
 
 // Middleware
-app.use(cors());
+app.use(cors({
+  origin: ['http://localhost:3000', 'http://127.0.0.1:3000'],
+  credentials: true
+}));
 app.use(express.json());
 app.use(cookieParser());
 
@@ -21,6 +25,7 @@ app.get('/api/health', (req: Request, res: Response) => {
 app.use('/api/goals', goalRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/huggingface', huggingfaceRoutes);
+app.use('/api/achievements', achievementRoutes);
 
 
 export default app; 

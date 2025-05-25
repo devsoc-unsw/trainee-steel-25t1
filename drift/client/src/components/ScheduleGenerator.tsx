@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
+import { Target } from 'lucide-react';
 import { generateSchedule } from '../services/huggingfaceService';
+import { createAchievement } from '../services/achievementService';
 import DriftLogo from '../assets/drift_logo.svg';
 
 // Beautiful Loading Component
@@ -58,6 +60,7 @@ const DriftLoadingScreen: React.FC = () => {
 
 const ScheduleGenerator: React.FC = () => {
   const [goal, setGoal] = useState('');
+  const [goalName, setGoalName] = useState('');
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [intensity, setIntensity] = useState('');
@@ -65,6 +68,10 @@ const ScheduleGenerator: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [tableData, setTableData] = useState<{ date: string; tasks: string[] }[]>([]);
   const [checked, setChecked] = useState<boolean[][]>([]);
+  const [showSaveModal, setShowSaveModal] = useState(false);
+  const [goalSaved, setGoalSaved] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
+  const [saveSuccess, setSaveSuccess] = useState(false);
 
   // Helper to parse schedule string into table data
   const parseScheduleToTable = (scheduleStr: string) => {
@@ -86,6 +93,7 @@ const ScheduleGenerator: React.FC = () => {
     if (stored) {
       const data = JSON.parse(stored);
       setGoal(data.objective || '');
+      setGoalName(data.goalName || '');
       setStartDate(new Date().toISOString().split('T')[0]);
       setEndDate(data.deadline || '');
       setIntensity(data.dedication || '');
@@ -135,6 +143,63 @@ const ScheduleGenerator: React.FC = () => {
   );
   const progress = totalTasks === 0 ? 0 : Math.round((completedTasks / totalTasks) * 100);
 
+  // Check if goal should be saved when 100% is reached
+  useEffect(() => {
+    if (progress === 100 && !goalSaved && !showSaveModal && goalName.trim()) {
+      // Check if this goal was already saved to prevent duplicate saves
+      const savedKey = `goal_saved_${goalName}_${endDate}`;
+      const alreadySaved = localStorage.getItem(savedKey);
+      
+      if (!alreadySaved) {
+        setShowSaveModal(true);
+      } else {
+        setGoalSaved(true);
+      }
+    }
+  }, [progress, goalSaved, showSaveModal, goalName, endDate]);
+
+  const saveGoal = async () => {
+    try {
+      setSaveError(null);
+      
+      const achievementData = {
+        name: goalName,
+        objective: goal,
+        deadline: endDate,
+        dedication: intensity,
+        completedDate: new Date().toISOString(),
+        totalTasks: totalTasks
+      };
+
+      console.log('Attempting to save achievement:', achievementData);
+      await createAchievement(achievementData);
+      
+      // Mark this goal as saved to prevent duplicate saves
+      const savedKey = `goal_saved_${goalName}_${endDate}`;
+      localStorage.setItem(savedKey, 'true');
+      
+      setGoalSaved(true);
+      setShowSaveModal(false);
+      setSaveSuccess(true);
+      
+      // Hide success message after 3 seconds
+      setTimeout(() => setSaveSuccess(false), 3000);
+    } catch (error) {
+      console.error('Error saving achievement:', error);
+      setSaveError(error instanceof Error ? error.message : 'Failed to save achievement');
+      // Don't close modal on error, let user try again
+    }
+  };
+
+  const skipSave = () => {
+    // Mark this goal as saved (skipped) to prevent modal from appearing again
+    const savedKey = `goal_saved_${goalName}_${endDate}`;
+    localStorage.setItem(savedKey, 'skipped');
+    
+    setGoalSaved(true);
+    setShowSaveModal(false);
+  };
+
   if (loading) {
     return <DriftLoadingScreen />;
   }
@@ -149,9 +214,39 @@ const ScheduleGenerator: React.FC = () => {
           <p className="text-white/80 text-lg"> Drift's plan to achieve your goals</p>
         </div>
 
+        {/* Goal Name Input */}
+        {!goalName && (
+          <div className="bg-white/10 backdrop-blur-md rounded-2xl p-6 mb-8 border border-white/20">
+            <div className="text-center">
+              <h3 className="text-white text-lg font-semibold mb-4">Give your goal a name</h3>
+              <div className="flex flex-col items-center space-y-4">
+                <input
+                  type="text"
+                  placeholder="e.g., Learn Guitar Mastery, Fitness Journey, etc."
+                  value={goalName}
+                  onChange={(e) => setGoalName(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                    }
+                  }}
+                  className="w-full max-w-md px-4 py-3 rounded-lg bg-white/20 backdrop-blur-sm text-white placeholder-white/60 border border-white/30 focus:outline-none focus:ring-2 focus:ring-white/50 text-center"
+                />
+                <p className="text-white/60 text-sm">This will help you track and celebrate your achievement!</p>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Goal Summary Card */}
         <div className="bg-white/10 backdrop-blur-md rounded-2xl p-6 mb-8 border border-white/20">
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid md:grid-cols-2 lg:grid-cols-5 gap-6">
+            {goalName && (
+              <div className="text-center">
+                <h3 className="text-white/70 text-sm font-medium mb-2">Goal Name</h3>
+                <p className="text-white font-semibold">{goalName}</p>
+              </div>
+            )}
             <div className="text-center">
               <h3 className="text-white/70 text-sm font-medium mb-2">Your Goal</h3>
               <p className="text-white font-semibold">{goal}</p>
@@ -529,6 +624,53 @@ const ScheduleGenerator: React.FC = () => {
         ) : (
           <div className="text-center text-white">
             <p className="text-xl">No schedule data available.</p>
+          </div>
+        )}
+
+        {/* Save Goal Modal */}
+        {showSaveModal && (
+          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
+            <div className="bg-white/10 backdrop-blur-md rounded-2xl p-8 border border-white/20 max-w-md mx-4 text-center">
+              <div className="mb-6">
+                <div className="w-24 h-24 mx-auto mb-4 rounded-full bg-gradient-to-br from-emerald-300 via-green-400 to-emerald-600 shadow-2xl shadow-emerald-400/40 flex items-center justify-center">
+                  <Target className="h-12 w-12 text-white" />
+                </div>
+                <h3 className="text-2xl font-bold text-white mb-2">Congratulations!</h3>
+                <p className="text-white/80">You've completed your goal "{goalName}"!</p>
+              </div>
+              
+              <p className="text-white/70 mb-6">
+                Would you like to save this achievement to your Achievement Archive?
+              </p>
+              
+              {saveError && (
+                <div className="mb-4 p-3 bg-red-500/20 border border-red-400/30 rounded-lg">
+                  <p className="text-red-200 text-sm">{saveError}</p>
+                </div>
+              )}
+              
+              <div className="flex space-x-4">
+                <button
+                  onClick={saveGoal}
+                  className="flex-1 px-6 py-3 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-200 rounded-lg font-medium transition-all duration-300 border border-emerald-400/30"
+                >
+                  Save Achievement
+                </button>
+                <button
+                  onClick={skipSave}
+                  className="flex-1 px-6 py-3 bg-white/10 hover:bg-white/20 text-white/70 rounded-lg font-medium transition-all duration-300 border border-white/20"
+                >
+                  Skip
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Goal Saved Confirmation */}
+        {saveSuccess && (
+          <div className="fixed bottom-4 right-4 bg-emerald-500/20 backdrop-blur-md rounded-lg p-4 border border-emerald-400/30 text-emerald-200 z-50">
+            <p className="font-medium">Achievement saved to your archive!</p>
           </div>
         )}
       </div>

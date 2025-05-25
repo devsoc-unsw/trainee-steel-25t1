@@ -2,7 +2,7 @@
 
 import type React from "react"
 import { useEffect, useState } from "react"
-import { BarChart3, Calendar, ChevronLeft, ChevronRight, Home, LogOut, Menu, Settings, Target } from "lucide-react"
+import { BarChart3, Calendar, ChevronLeft, ChevronRight, Home, LogOut, Menu, Settings, Target, Trophy } from "lucide-react"
 import DriftLogo from "../../assets/drift_logo.svg"
 import MakeItHappenFloat from "../../assets/makeithappen_float.svg"
 import { Routes, Route, useNavigate, useLocation, Link } from "react-router-dom"
@@ -10,6 +10,7 @@ import { Routes, Route, useNavigate, useLocation, Link } from "react-router-dom"
 import Goals from "./Goals"
 import CalendarPage from "./CalendarPage"
 import SettingsPage from "./SettingsPage"
+import AchievementArchive from "./AchievementArchive"
 
 // Simple FloatingBoat component
 const FloatingBoat = () => {
@@ -127,6 +128,7 @@ interface GoalFormData {
   objective: string;
   deadline: string;
   dedication: string;
+  goalName: string;
 }
 
 const Dashboard = () => {
@@ -137,6 +139,7 @@ const Dashboard = () => {
     objective: "",
     deadline: "",
     dedication: "",
+    goalName: "",
   })
   const navigate = useNavigate()
   const location = useLocation()
@@ -186,7 +189,7 @@ const Dashboard = () => {
     e.preventDefault()
 
     // Basic validation
-    if (!formData.objective || !formData.deadline || !formData.dedication) {
+    if (!formData.goalName || !formData.objective || !formData.deadline || !formData.dedication) {
       return // Don't submit if missing required fields
     }
 
@@ -201,7 +204,7 @@ const Dashboard = () => {
     { name: "Dashboard", icon: Home, path: "/dashboard" },
     { name: "Goals", icon: Target, path: "/dashboard/goals" },
     { name: "Calendar", icon: Calendar, path: "/dashboard/calendar" },
-    { name: "Placeholder", icon: BarChart3, path: "" },
+    { name: "Achievements", icon: Trophy, path: "/dashboard/achievements" },
     { name: "Settings", icon: Settings, path: "/dashboard/settings" },
   ]
 
@@ -305,7 +308,19 @@ const Dashboard = () => {
                   <div className="w-full md:w-1/2 p-6 pt-2">
                     <div className="space-y-8 text-white">
                       <div className="space-y-5">
-                        <h2 className="text-3xl font-bold">1. What do you want to achieve?</h2>
+                        <h2 className="text-3xl font-bold">1. Give your goal a name</h2>
+                        <input
+                          type="text"
+                          name="goalName"
+                          value={formData.goalName}
+                          onChange={handleChange}
+                          placeholder="e.g., Learn Guitar Mastery, Fitness Journey, etc."
+                          className="w-full px-5 py-4 rounded-md bg-white/20 backdrop-blur-sm text-white placeholder-white/60 border border-white/30 focus:outline-none focus:ring-2 focus:ring-white/50 text-lg"
+                        />
+                      </div>
+
+                      <div className="space-y-5">
+                        <h2 className="text-3xl font-bold">2. What do you want to achieve?</h2>
                         <textarea
                           name="objective"
                           value={formData.objective}
@@ -317,7 +332,7 @@ const Dashboard = () => {
                       </div>
 
                       <div className="space-y-5">
-                        <h2 className="text-2xl font-medium">2. When do you want to achieve this by?</h2>
+                        <h2 className="text-2xl font-medium">3. When do you want to achieve this by?</h2>
                         <input
                           type="date"
                           id="deadline"
@@ -331,7 +346,7 @@ const Dashboard = () => {
                       </div>
 
                       <div className="space-y-5">
-                        <h2 className="text-2xl font-medium">3. How dedicated are you?</h2>
+                        <h2 className="text-2xl font-medium">4. How dedicated are you?</h2>
                         <select
                           id="dedication"
                           name="dedication"
@@ -365,7 +380,7 @@ const Dashboard = () => {
                     <MagicalButton
                       onClick={handleSubmit}
                       disabled={
-                        !formData.objective || !formData.deadline || !formData.dedication
+                        !formData.goalName || !formData.objective || !formData.deadline || !formData.dedication
                       }
                     />
                   </div>
@@ -374,6 +389,7 @@ const Dashboard = () => {
             />
             <Route path="goals" element={<Goals />} />
             <Route path="calendar" element={<CalendarPage />} />
+            <Route path="achievements" element={<AchievementArchive />} />
             <Route path="settings" element={<SettingsPage />} />
           </Routes>
         </main>
