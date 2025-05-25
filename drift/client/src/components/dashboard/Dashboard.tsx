@@ -1,29 +1,127 @@
-import React, { useEffect, useState } from "react";
-import {
-  BarChart3,
-  Calendar,
-  ChevronLeft,
-  ChevronRight,
-  Home,
-  LogOut,
-  Menu,
-  PlusCircle,
-  Settings,
-  Target,
-  Users,
-} from "lucide-react";
-import DriftLogo from "../../assets/drift_logo.svg";
-import {
-  Routes,
-  Route,
-  useNavigate,
-  useLocation,
-  Link,
-} from "react-router-dom";
+"use client"
 
-import Goals from "./Goals";
-import CalendarPage from "./CalendarPage";
-import SettingsPage from "./SettingsPage";
+import type React from "react"
+import { useEffect, useState } from "react"
+import { BarChart3, Calendar, ChevronLeft, ChevronRight, Home, LogOut, Menu, Settings, Target } from "lucide-react"
+import DriftLogo from "../../assets/drift_logo.svg"
+import MakeItHappenFloat from "../../assets/makeithappen_float.svg"
+import { Routes, Route, useNavigate, useLocation, Link } from "react-router-dom"
+
+import Goals from "./Goals"
+import CalendarPage from "./CalendarPage"
+import SettingsPage from "./SettingsPage"
+
+// Simple FloatingBoat component
+const FloatingBoat = () => {
+  return (
+    <div className="relative flex flex-col items-center">
+      {/* Wind effects */}
+      <div className="absolute z-10 w-full h-full overflow-hidden pointer-events-none">
+        <div className="absolute left-0 top-1/4 w-16 h-[1px] bg-gradient-to-r from-white/0 via-white/30 to-white/0 animate-windGust1"></div>
+        <div className="absolute right-5 top-1/3 w-12 h-[1px] bg-gradient-to-r from-white/0 via-white/20 to-white/0 animate-windGust2"></div>
+        <div className="absolute left-10 top-2/3 w-14 h-[1px] bg-gradient-to-r from-white/0 via-white/25 to-white/0 animate-windGust3"></div>
+      </div>
+      
+      {/* Boat with wind-drift animation */}
+      <div className="relative animate-windDrift">
+        <img src={DriftLogo || "/placeholder.svg"} alt="Drift logo" className="h-40 w-40" />
+      </div>
+      
+      {/* Natural water with curved edges - moved closer to boat */}
+      <div className="w-full -mt-4 overflow-visible">
+        {/* Organic water surface with irregular edges */}
+        <div className="relative h-3 overflow-visible">
+          {/* Main water curve - reduced height */}
+          <div className="absolute left-1/2 -translate-x-1/2 w-48 h-3 overflow-hidden">
+            <div className="w-48 h-6 rounded-[100%] bg-gradient-to-b from-white/10 to-transparent"></div>
+          </div>
+          
+          {/* Irregular ripple effects */}
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-52">
+            <div className="w-full h-[2px] bg-gradient-to-r from-transparent via-white/40 to-transparent rounded-[100%] animate-ripple transform-gpu"></div>
+          </div>
+          
+          {/* Smaller natural waves */}
+          <div className="absolute top-1 left-[40%] w-16 h-[1px]">
+            <div className="w-full h-full bg-gradient-to-r from-transparent via-white/30 to-transparent rounded-full animate-tinyWave1"></div>
+          </div>
+          <div className="absolute top-1 right-[42%] w-14 h-[1px]">
+            <div className="w-full h-full bg-gradient-to-r from-transparent via-white/25 to-transparent rounded-full animate-tinyWave2"></div>
+          </div>
+          
+          {/* Small glistening highlights */}
+          <div className="absolute top-0 left-[30%] w-1 h-1 bg-white/40 rounded-full animate-glisten1"></div>
+          <div className="absolute top-1 right-[35%] w-[2px] h-[2px] bg-white/50 rounded-full animate-glisten2"></div>
+        </div>
+        
+        {/* Boat reflection with natural water distortion - moved up */}
+        <div className="relative flex justify-center -mt-2">
+          {/* The reflection itself */}
+          <div className="animate-reflectionWind">
+            <img 
+              src={DriftLogo || "/placeholder.svg"} 
+              alt="Reflection" 
+              className="h-40 w-40 scale-y-[-1] opacity-40 blur-[1px]" 
+            />
+          </div>
+          
+          {/* Water movement lines */}
+          <div className="absolute inset-0 flex flex-col justify-around pointer-events-none">
+            <div className="h-[1px] w-full bg-gradient-to-r from-transparent via-white/15 to-transparent rounded-full animate-waveSlowA"></div>
+            <div className="h-[1px] w-3/4 mx-auto bg-gradient-to-r from-white/10 via-transparent to-white/10 rounded-full animate-waveSlowB"></div>
+            <div className="h-[1px] w-4/5 ml-auto bg-gradient-to-r from-transparent via-white/10 to-transparent rounded-full animate-waveFast"></div>
+            <div className="h-[1px] w-2/3 mr-auto bg-gradient-to-r from-white/5 via-white/10 to-white/5 rounded-full animate-waveMed"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// Magical Make It Happen Button component
+interface MagicalButtonProps {
+  onClick: (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void;
+  disabled: boolean;
+}
+
+const MagicalButton: React.FC<MagicalButtonProps> = ({ onClick, disabled }) => {
+  return (
+    <div className="relative">
+      {/* Floating magical elements */}
+      <div className="absolute inset-0 -top-8 -left-6 -right-6 -bottom-8 pointer-events-none">
+        <img 
+          src={MakeItHappenFloat} 
+          alt="Magical elements" 
+          className="w-full h-full object-contain animate-magicalFloat opacity-80"
+        />
+      </div>
+      
+      {/* Glowing effects */}
+      <div className="absolute inset-0 rounded-full bg-white/10 blur-md animate-glow"></div>
+      
+      {/* Sparkles */}
+      <div className="absolute -top-2 left-1/4 w-1 h-1 bg-white rounded-full animate-sparkle1"></div>
+      <div className="absolute -top-3 left-2/3 w-2 h-2 bg-white rounded-full animate-sparkle2"></div>
+      <div className="absolute -bottom-2 right-1/4 w-1.5 h-1.5 bg-white rounded-full animate-sparkle3"></div>
+      
+      {/* Button itself */}
+      <button
+        onClick={onClick}
+        disabled={disabled}
+        className="relative px-8 py-5 bg-white/20 backdrop-blur-md text-white rounded-full text-xl font-medium 
+                  hover:bg-white/30 transition-all duration-300 w-72 shadow-lg
+                  disabled:opacity-50 disabled:cursor-not-allowed
+                  border border-white/30 z-10
+                  group"
+      >
+        <span className="relative z-10 group-hover:scale-105 transition-transform duration-300 inline-block">
+          Make It Happen
+        </span>
+        <div className="absolute inset-0 bg-gradient-to-r from-drift-pink/40 via-drift-purple/30 to-drift-orange/40 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+      </button>
+    </div>
+  );
+};
 
 interface GoalFormData {
   objective: string;
@@ -32,65 +130,72 @@ interface GoalFormData {
 }
 
 const Dashboard = () => {
-  const [username, setUsername] = useState("");
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [username, setUsername] = useState("")
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [formData, setFormData] = useState<GoalFormData>({
-    objective: '',
-    deadline: '',
-    dedication: ''
-  });
-  const navigate = useNavigate();
-  const location = useLocation();
+    objective: "",
+    deadline: "",
+    dedication: "",
+  })
+  const navigate = useNavigate()
+  const location = useLocation()
 
   useEffect(() => {
-    const token = localStorage.getItem("userToken");
-    const name = localStorage.getItem("userName");
+    const token = localStorage.getItem("userToken")
+    const name = localStorage.getItem("userName")
     if (!token) {
-      navigate("/login");
-      return;
+      navigate("/login")
+      return
     }
-    setUsername(name || "User");
-    const savedSidebarState = localStorage.getItem("sidebarCollapsed");
-    if (savedSidebarState) setSidebarCollapsed(savedSidebarState === "true");
-    else setSidebarCollapsed(window.innerWidth < 768);
+    setUsername(name || "User")
+    const savedSidebarState = localStorage.getItem("sidebarCollapsed")
+    if (savedSidebarState) setSidebarCollapsed(savedSidebarState === "true")
+    else setSidebarCollapsed(window.innerWidth < 768)
 
     const handleResize = () => {
-      if (window.innerWidth < 768) setMobileMenuOpen(false);
-    };
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, [navigate]);
+      if (window.innerWidth < 768) setMobileMenuOpen(false)
+    }
+    window.addEventListener("resize", handleResize)
+    return () => window.removeEventListener("resize", handleResize)
+  }, [navigate])
 
   const handleLogout = () => {
-    localStorage.removeItem("userToken");
-    localStorage.removeItem("userName");
-    navigate("/");
-  };
+    localStorage.removeItem("userToken")
+    localStorage.removeItem("userName")
+    navigate("/")
+  }
 
   const toggleSidebar = () => {
-    const newState = !sidebarCollapsed;
-    setSidebarCollapsed(newState);
-    localStorage.setItem("sidebarCollapsed", String(newState));
-  };
+    const newState = !sidebarCollapsed
+    setSidebarCollapsed(newState)
+    localStorage.setItem("sidebarCollapsed", String(newState))
+  }
 
-  const toggleMobileMenu = () => setMobileMenuOpen(!mobileMenuOpen);
+  const toggleMobileMenu = () => setMobileMenuOpen(!mobileMenuOpen)
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
+    const { name, value } = e.target
+    setFormData((prev) => ({
       ...prev,
-      [name]: value
-    }));
-  };
+      [name]: value,
+    }))
+  }
 
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+    e.preventDefault()
+
+    // Basic validation
+    if (!formData.objective || !formData.deadline || !formData.dedication) {
+      return // Don't submit if missing required fields
+    }
+
     // Store form data in localStorage temporarily
-    localStorage.setItem('goalData', JSON.stringify(formData));
+    localStorage.setItem("goalData", JSON.stringify(formData))
+
     // Navigate to schedule page
-    navigate('/schedule');
-  };
+    navigate("/schedule")
+  }
 
   const navItems = [
     { name: "Dashboard", icon: Home, path: "/dashboard" },
@@ -98,18 +203,14 @@ const Dashboard = () => {
     { name: "Calendar", icon: Calendar, path: "/dashboard/calendar" },
     { name: "Placeholder", icon: BarChart3, path: "" },
     { name: "Settings", icon: Settings, path: "/dashboard/settings" },
-  ];
+  ]
 
   return (
-    <div className="flex h-screen bg-gray-50">
+    <div className="flex h-screen bg-gradient-to-b from-drift-orange via-drift-pink to-drift-blue">
       <aside
         className={`fixed inset-y-0 left-0 z-20 flex flex-col bg-drift-blue transition-all duration-300 ease-in-out ${
           sidebarCollapsed ? "w-20" : "w-64"
-        } ${
-          mobileMenuOpen
-            ? "translate-x-0"
-            : "-translate-x-full md:translate-x-0"
-        }`}
+        } ${mobileMenuOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"}`}
       >
         <div
           className={`flex h-16 items-center ${
@@ -117,10 +218,8 @@ const Dashboard = () => {
           } border-b border-drift-purple/30 px-4`}
         >
           <div className="flex items-center space-x-3">
-            <img src={DriftLogo} alt="Drift logo" className="h-12 w-12" />
-            {!sidebarCollapsed && (
-              <span className="text-xl font-bold text-white">Drift</span>
-            )}
+            <img src={DriftLogo || "/placeholder.svg"} alt="Drift logo" className="h-12 w-12" />
+            {!sidebarCollapsed && <span className="text-xl font-bold text-white">Drift</span>}
           </div>
           {!sidebarCollapsed && (
             <button
@@ -150,18 +249,12 @@ const Dashboard = () => {
                   : "text-white/80 hover:bg-drift-purple/40 hover:text-white"
               } ${sidebarCollapsed ? "justify-center" : ""}`}
             >
-              <item.icon
-                className={`h-5 w-5 ${sidebarCollapsed ? "" : "mr-3"}`}
-              />
+              <item.icon className={`h-5 w-5 ${sidebarCollapsed ? "" : "mr-3"}`} />
               {!sidebarCollapsed && <span>{item.name}</span>}
             </Link>
           ))}
         </nav>
-        <div
-          className={`border-t border-drift-purple/30 p-4 ${
-            sidebarCollapsed ? "flex justify-center" : ""
-          }`}
-        >
+        <div className={`border-t border-drift-purple/30 p-4 ${sidebarCollapsed ? "flex justify-center" : ""}`}>
           {sidebarCollapsed ? (
             <div className="group relative">
               <div className="h-10 w-10 cursor-pointer rounded-full bg-drift-mauve flex items-center justify-center text-white font-medium shadow-md">
@@ -195,106 +288,86 @@ const Dashboard = () => {
           )}
         </div>
       </aside>
-      <div
-        className={`flex flex-1 flex-col transition-all duration-300 ${
-          sidebarCollapsed ? "md:ml-20" : "md:ml-64"
-        }`}
-      >
-        <header className="sticky top-0 z-10 bg-white shadow-sm">
-          <div className="flex h-16 items-center justify-between px-4">
-            <button
-              onClick={toggleMobileMenu}
-              className="mr-2 rounded-md p-2 text-drift-blue hover:bg-gray-100 md:hidden"
-            >
-              <Menu className="h-6 w-6" />
+      <div className={`flex flex-1 flex-col transition-all duration-300 ${sidebarCollapsed ? "md:ml-20" : "md:ml-64"}`}>
+        <header className="sticky top-0 z-10 bg-transparent">
+          <div className="flex h-12 items-center px-4 md:px-6">
+            <button onClick={toggleMobileMenu} className="rounded-md p-2 text-white hover:bg-white/10 md:hidden">
+              <Menu className="h-5 w-5" />
             </button>
-            <div className="flex items-center space-x-4">
-              <button className="flex items-center rounded-lg bg-drift-orange px-3 py-2 text-sm font-medium text-white shadow-md hover:bg-drift-orange/90 transition-all hover:shadow-lg">
-                <PlusCircle className="mr-2 h-4 w-4" />
-                <span>New Goal</span>
-              </button>
-            </div>
           </div>
         </header>
-        <main className="flex-1 overflow-y-auto p-4 md:p-6">
+        <main className="flex-1 overflow-y-auto p-4 md:p-6 pt-0 md:pt-2">
           <Routes>
             <Route
               path="/"
               element={
-                <div className="max-w-4xl mx-auto">
-                  <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-                    <h2 className="text-2xl font-bold text-drift-purple mb-2">
-                      Hello, {username}!
-                    </h2>
-                    <p className="text-gray-600 mb-6">
-                      Let's create a personalized schedule to help you achieve your goals.
-                    </p>
-                    
-                    <form onSubmit={handleSubmit} className="space-y-6">
-                      <div className="space-y-4">
-                        <h3 className="text-xl font-semibold text-drift-blue">Let's Get Started</h3>
-                        
-                        <div className="space-y-2">
-                          <label htmlFor="objective" className="block text-lg font-medium text-gray-700">
-                            1. What do you want to achieve?
-                          </label>
-                          <textarea
-                            id="objective"
-                            name="objective"
-                            value={formData.objective}
-                            onChange={handleChange}
-                            required
-                            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-drift-blue focus:border-drift-blue"
-                            rows={3}
-                            placeholder="Describe your goal in detail..."
-                          />
-                        </div>
-
-                        <div className="space-y-2">
-                          <label htmlFor="deadline" className="block text-lg font-medium text-gray-700">
-                            2. When do you want to achieve this by?
-                          </label>
-                          <input
-                            type="date"
-                            id="deadline"
-                            name="deadline"
-                            value={formData.deadline}
-                            onChange={handleChange}
-                            required
-                            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-drift-blue focus:border-drift-blue"
-                            min={new Date().toISOString().split('T')[0]}
-                          />
-                        </div>
-
-                        <div className="space-y-2">
-                          <label htmlFor="dedication" className="block text-lg font-medium text-gray-700">
-                            3. How dedicated are you?
-                          </label>
-                          <select
-                            id="dedication"
-                            name="dedication"
-                            value={formData.dedication}
-                            onChange={handleChange}
-                            required
-                            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-drift-blue focus:border-drift-blue"
-                          >
-                            <option value="">Select your dedication level</option>
-                            <option value="casual">Casual - I can spare a few hours per week</option>
-                            <option value="moderate">Moderate - I can work on this regularly</option>
-                            <option value="intense">Intense - I'm fully committed to this goal</option>
-                          </select>
-                        </div>
+                <div className="max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-center min-h-[80vh]">
+                  <div className="w-full md:w-1/2 p-6 pt-2">
+                    <div className="space-y-8 text-white">
+                      <div className="space-y-5">
+                        <h2 className="text-3xl font-bold">1. What do you want to achieve?</h2>
+                        <textarea
+                          name="objective"
+                          value={formData.objective}
+                          onChange={handleChange}
+                          placeholder="Describe your goal in detail..."
+                          rows={3}
+                          className="w-full px-5 py-4 rounded-md bg-white/20 backdrop-blur-sm text-white placeholder-white/60 border border-white/30 focus:outline-none focus:ring-2 focus:ring-white/50 text-lg"
+                        />
                       </div>
 
-                      <div className="pt-4">
-                        <button
-                          type="submit"
-                          className="w-full bg-drift-mauve hover:bg-purple-700 text-white py-3 px-6 rounded-md text-lg font-medium transition-colors duration-200"
+                      <div className="space-y-5">
+                        <h2 className="text-2xl font-medium">2. When do you want to achieve this by?</h2>
+                        <input
+                          type="date"
+                          id="deadline"
+                          name="deadline"
+                          value={formData.deadline}
+                          onChange={handleChange}
+                          min={new Date().toISOString().split('T')[0]} 
+                          className="w-full px-5 py-4 rounded-md bg-drift-blue/40 text-white focus:outline-none focus:ring-2 focus:ring-drift-blue focus:border-drift-blue hover:bg-drift-blue/60 transition-colors text-lg
+                                   [&::-webkit-calendar-picker-indicator]:filter [&::-webkit-calendar-picker-indicator]:invert [&::-webkit-calendar-picker-indicator]:cursor-pointer"
+                        />
+                      </div>
+
+                      <div className="space-y-5">
+                        <h2 className="text-2xl font-medium">3. How dedicated are you?</h2>
+                        <select
+                          id="dedication"
+                          name="dedication"
+                          value={formData.dedication}
+                          onChange={handleChange}
+                          className="w-full px-5 py-4 rounded-md bg-white/20 backdrop-blur-sm text-white border border-white/30 focus:outline-none focus:ring-2 focus:ring-white/50 text-lg
+                                   appearance-none cursor-pointer
+                                   [&>option]:bg-drift-blue [&>option]:text-white [&>option]:py-2
+                                   hover:bg-white/30 transition-colors duration-200"
+                          style={{
+                            backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23ffffff' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`,
+                            backgroundPosition: 'right 1rem center',
+                            backgroundRepeat: 'no-repeat',
+                            backgroundSize: '1.5em 1.5em'
+                          }}
                         >
-                          Make it happen
-                        </button>
+                          <option value="" className="bg-drift-blue text-white/70">Select your dedication level</option>
+                          <option value="casual" className="bg-drift-blue text-white">Casual - I can spare a few hours per week</option>
+                          <option value="moderate" className="bg-drift-blue text-white">Moderate - I can work on this regularly</option>
+                          <option value="intense" className="bg-drift-blue text-white">Intense - I'm fully committed to this goal</option>
+                        </select>
                       </div>
-                    </form>
+                    </div>
+                  </div>
+
+                  <div className="w-full md:w-1/2 flex flex-col items-center justify-center relative py-8">
+                    <div className="mb-10">
+                      <FloatingBoat />
+                    </div>
+
+                    <MagicalButton
+                      onClick={handleSubmit}
+                      disabled={
+                        !formData.objective || !formData.deadline || !formData.dedication
+                      }
+                    />
                   </div>
                 </div>
               }
@@ -306,13 +379,10 @@ const Dashboard = () => {
         </main>
       </div>
       {mobileMenuOpen && (
-        <div
-          className="fixed inset-0 z-10 bg-black bg-opacity-50 md:hidden"
-          onClick={toggleMobileMenu}
-        ></div>
+        <div className="fixed inset-0 z-10 bg-black bg-opacity-50 md:hidden" onClick={toggleMobileMenu}></div>
       )}
     </div>
-  );
-};
+  )
+}
 
-export default Dashboard;
+export default Dashboard
