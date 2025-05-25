@@ -231,14 +231,29 @@ const AchievementArchive: React.FC = () => {
 
                                   {/* Achievement Stats */}
                   <div className="grid grid-cols-3 gap-2 md:gap-4 pt-4 md:pt-6 border-t border-gray-200">
+                    {/* Tasks */}
                     <div className="text-center">
                       <div className="text-lg md:text-2xl font-bold text-gray-800">{currentGoal?.totalTasks}</div>
                       <div className="text-xs md:text-sm text-gray-500">Tasks Completed</div>
                     </div>
+
+                    {/* Dedication Level */}
                     <div className="text-center">
-                      <div className="text-lg md:text-2xl font-bold text-gray-800 capitalize">{currentGoal?.dedication}</div>
+                      <div className="text-base md:text-xl font-bold">
+                        <span className={`inline-block px-3 py-1 rounded-full leading-normal ${
+                          currentGoal?.dedication === 'Intense'
+                            ? 'bg-red-100 text-red-600'
+                            : currentGoal?.dedication === 'Moderate'
+                            ? 'bg-yellow-100 text-yellow-600'
+                            : 'bg-green-100 text-green-600'
+                        }`}>
+                          {currentGoal?.dedication}
+                        </span>
+                      </div>
                       <div className="text-xs md:text-sm text-gray-500">Dedication Level</div>
                     </div>
+
+                    {/* Completed */}
                     <div className="text-center">
                       <div className="text-lg md:text-2xl font-bold text-gray-800">
                         {formatDate(currentGoal?.completedDate).split(',')[0]}
