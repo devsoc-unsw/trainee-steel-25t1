@@ -21,42 +21,6 @@ const getGoalIcon = (objective: string) => {
   }
 };
 
-const mockData: Achievement[] = [
-  {
-    _id: '1',
-    name: 'Learn Guitar Chords',
-    objective: 'Practice G, C, D daily',
-    deadline: '2025-06-01',
-    dedication: 'Intense',
-    completedDate: '2025-05-20',
-    totalTasks: 15,
-    userId: 'me',
-    createdAt: '2025-05-01',
-  },
-  {
-    _id: '2',
-    name: 'Finish COMP6080',
-    objective: 'Submit the final UI project',
-    deadline: '2025-05-25',
-    dedication: 'Moderate',
-    completedDate: '2025-05-24',
-    totalTasks: 7,
-    userId: 'me',
-    createdAt: '2025-04-10',
-  },
-  {
-    _id: '3',
-    name: 'Read Atomic Habits',
-    objective: 'Read 1 chapter a day',
-    deadline: '2025-06-10',
-    dedication: 'Casual',
-    completedDate: '2025-05-18',
-    totalTasks: 10,
-    userId: 'me',
-    createdAt: '2025-04-28',
-  }
-];
-
 const AchievementArchive: React.FC = () => {
   const [completedGoals, setCompletedGoals] = useState<Achievement[]>([]);
   const [viewMode, setViewMode] = useState<'slideshow' | 'grid'>('slideshow');
@@ -71,7 +35,7 @@ const AchievementArchive: React.FC = () => {
         setLoading(true);
         setError(null);
         const achievements = await getUserAchievements();
-        setCompletedGoals(mockData); // Use mock data for now
+        setCompletedGoals(achievements);
       } catch (err) {
         console.error('Error fetching achievements:', err);
         setError('Failed to load achievements. Please try again.');
