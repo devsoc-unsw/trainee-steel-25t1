@@ -1,3 +1,4 @@
+// This file is not needed anymore as the login.tsx file has been updated to include both login and register functionality.
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
