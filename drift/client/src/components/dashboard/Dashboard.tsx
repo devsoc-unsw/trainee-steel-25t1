@@ -55,7 +55,7 @@ const FloatingBoat = () => {
         </div>
         
         {/* Boat reflection with natural water distortion - moved up */}
-        <div className="relative flex justify-center -mt-11">
+        <div className="relative flex justify-center -mt-2">
           {/* The reflection itself */}
           <div className="animate-reflectionWind">
             <img 
@@ -124,10 +124,9 @@ const MagicalButton: React.FC<MagicalButtonProps> = ({ onClick, disabled }) => {
 };
 
 interface GoalFormData {
-  objective: string
-  startDate: string
-  endDate: string
-  hoursPerDay: string
+  objective: string;
+  deadline: string;
+  dedication: string;
 }
 
 const Dashboard = () => {
@@ -136,9 +135,8 @@ const Dashboard = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [formData, setFormData] = useState<GoalFormData>({
     objective: "",
-    startDate: "",
-    endDate: "",
-    hoursPerDay: "",
+    deadline: "",
+    dedication: "",
   })
   const navigate = useNavigate()
   const location = useLocation()
@@ -188,7 +186,7 @@ const Dashboard = () => {
     e.preventDefault()
 
     // Basic validation
-    if (!formData.objective || !formData.startDate || !formData.endDate || !formData.hoursPerDay) {
+    if (!formData.objective || !formData.deadline || !formData.dedication) {
       return // Don't submit if missing required fields
     }
 
@@ -307,74 +305,67 @@ const Dashboard = () => {
                   <div className="w-full md:w-1/2 p-6 pt-2">
                     <div className="space-y-8 text-white">
                       <div className="space-y-5">
-                        <h2 className="text-3xl font-bold">What do you want to acheive?</h2>
-                        <input
-                          type="text"
+                        <h2 className="text-3xl font-bold">1. What do you want to achieve?</h2>
+                        <textarea
                           name="objective"
                           value={formData.objective}
                           onChange={handleChange}
-                          placeholder="describe your goal"
+                          placeholder="Describe your goal in detail..."
+                          rows={3}
                           className="w-full px-5 py-4 rounded-md bg-white/20 backdrop-blur-sm text-white placeholder-white/60 border border-white/30 focus:outline-none focus:ring-2 focus:ring-white/50 text-lg"
                         />
                       </div>
 
                       <div className="space-y-5">
-                        <h2 className="text-2xl font-medium">When do you want to achieve this by?</h2>
-                        <div className="flex flex-wrap gap-4">
-                          <div className="flex flex-col space-y-1 flex-grow">
-                            <label htmlFor="startDate" className="text-sm opacity-80">
-                              Start date
-                            </label>
-                            <input
-                              type="date"
-                              id="startDate"
-                              name="startDate"
-                              value={formData.startDate}
-                              onChange={handleChange}
-                              className="px-6 py-3 bg-drift-blue/40 text-white rounded-md hover:bg-drift-blue/60 transition-colors text-lg focus:outline-none focus:ring-2 focus:ring-white/50 border-none"
-                            />
-                          </div>
-
-                          <div className="flex flex-col space-y-1 flex-grow">
-                            <label htmlFor="endDate" className="text-sm opacity-80">
-                              End date
-                            </label>
-                            <input
-                              type="date"
-                              id="endDate"
-                              name="endDate"
-                              value={formData.endDate}
-                              onChange={handleChange}
-                              className="px-6 py-3 bg-drift-blue/40 text-white rounded-md hover:bg-drift-blue/60 transition-colors text-lg focus:outline-none focus:ring-2 focus:ring-white/50 border-none"
-                            />
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="space-y-5">
-                        <h2 className="text-2xl font-medium">How dedicated are you?</h2>
+                        <h2 className="text-2xl font-medium">2. When do you want to achieve this by?</h2>
                         <input
-                          type="text"
-                          name="hoursPerDay"
-                          value={formData.hoursPerDay}
+                          type="date"
+                          id="deadline"
+                          name="deadline"
+                          value={formData.deadline}
                           onChange={handleChange}
-                          placeholder="number of hours per day"
-                          className="w-full px-5 py-4 rounded-md bg-white/20 backdrop-blur-sm text-white placeholder-white/60 border border-white/30 focus:outline-none focus:ring-2 focus:ring-white/50 text-lg"
+                          min={new Date().toISOString().split('T')[0]} 
+                          className="w-full px-5 py-4 rounded-md bg-drift-blue/40 text-white focus:outline-none focus:ring-2 focus:ring-drift-blue focus:border-drift-blue hover:bg-drift-blue/60 transition-colors text-lg
+                                   [&::-webkit-calendar-picker-indicator]:filter [&::-webkit-calendar-picker-indicator]:invert [&::-webkit-calendar-picker-indicator]:cursor-pointer"
                         />
+                      </div>
+
+                      <div className="space-y-5">
+                        <h2 className="text-2xl font-medium">3. How dedicated are you?</h2>
+                        <select
+                          id="dedication"
+                          name="dedication"
+                          value={formData.dedication}
+                          onChange={handleChange}
+                          className="w-full px-5 py-4 rounded-md bg-white/20 backdrop-blur-sm text-white border border-white/30 focus:outline-none focus:ring-2 focus:ring-white/50 text-lg
+                                   appearance-none cursor-pointer
+                                   [&>option]:bg-drift-blue [&>option]:text-white [&>option]:py-2
+                                   hover:bg-white/30 transition-colors duration-200"
+                          style={{
+                            backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23ffffff' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`,
+                            backgroundPosition: 'right 1rem center',
+                            backgroundRepeat: 'no-repeat',
+                            backgroundSize: '1.5em 1.5em'
+                          }}
+                        >
+                          <option value="" className="bg-drift-blue text-white/70">Select your dedication level</option>
+                          <option value="casual" className="bg-drift-blue text-white">Casual - I can spare a few hours per week</option>
+                          <option value="moderate" className="bg-drift-blue text-white">Moderate - I can work on this regularly</option>
+                          <option value="intense" className="bg-drift-blue text-white">Intense - I'm fully committed to this goal</option>
+                        </select>
                       </div>
                     </div>
                   </div>
 
                   <div className="w-full md:w-1/2 flex flex-col items-center justify-center relative py-8">
                     <div className="mb-10">
-                      {/* Replace static logo with animated floating boat */}
                       <FloatingBoat />
                     </div>
 
                     <MagicalButton
                       onClick={handleSubmit}
                       disabled={
-                        !formData.objective || !formData.startDate || !formData.endDate || !formData.hoursPerDay
+                        !formData.objective || !formData.deadline || !formData.dedication
                       }
                     />
                   </div>
