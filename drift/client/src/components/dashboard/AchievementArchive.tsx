@@ -172,13 +172,13 @@ const AchievementArchive: React.FC = () => {
               <button
                 onClick={prevSlide}
                 disabled={isTransitioning}
-                className={`absolute left-0 z-10 p-4 transition-all duration-300 ${
-                  isTransitioning 
-                    ? 'text-drift-blue/30 cursor-not-allowed' 
-                    : 'text-drift-blue/70 hover:text-drift-blue hover:scale-110 cursor-pointer'
+                className={`absolute left-6 z-10 rounded-full bg-white/70 hover:bg-white shadow-lg p-3 transition-all duration-300 ${
+                  isTransitioning
+                    ? 'text-drift-blue/30 cursor-not-allowed'
+                    : 'text-drift-blue/80 hover:text-drift-blue cursor-pointer scale-100 hover:scale-110'
                 }`}
               >
-                <ChevronLeft className="h-8 w-8" />
+                <ChevronLeft className="h-6 w-6" />
               </button>
             )}
 
@@ -270,13 +270,13 @@ const AchievementArchive: React.FC = () => {
               <button
                 onClick={nextSlide}
                 disabled={isTransitioning}
-                className={`absolute right-0 z-10 p-4 transition-all duration-300 ${
-                  isTransitioning 
-                    ? 'text-drift-blue/30 cursor-not-allowed' 
-                    : 'text-drift-blue/70 hover:text-drift-blue hover:scale-110 cursor-pointer'
+                className={`absolute right-6 z-10 rounded-full bg-white/70 hover:bg-white shadow-lg p-3 transition-all duration-300 ${
+                  isTransitioning
+                    ? 'text-drift-blue/30 cursor-not-allowed'
+                    : 'text-drift-blue/80 hover:text-drift-blue cursor-pointer scale-100 hover:scale-110'
                 }`}
               >
-                <ChevronRight className="h-8 w-8" />
+                <ChevronRight className="h-6 w-6" />
               </button>
             )}
           </div>
@@ -292,8 +292,8 @@ const AchievementArchive: React.FC = () => {
                 disabled={isTransitioning}
                 className={`w-3 h-3 rounded-full transition-all duration-300 ${
                   index === currentSlide
-                    ? 'bg-drift-blue shadow-lg scale-125'
-                    : 'bg-drift-blue/40 hover:bg-drift-blue/60'
+                    ? 'bg-drift-pink   shadow-lg scale-125'
+                    : 'bg-drift-pink/40 hover:bg-drift-pink/60'
                 } ${isTransitioning ? 'cursor-not-allowed' : 'cursor-pointer'}`}
               />
             ))}
