@@ -26,33 +26,43 @@ const ScheduleGenerator: React.FC = () => {
   };
 
   useEffect(() => {
-    const stored = localStorage.getItem('goalData');
-    const storedSchedule = localStorage.getItem('scheduleData');
-    if (stored) {
-      const data = JSON.parse(stored);
-      setGoal(data.objective || '');
-      setStartDate(new Date().toISOString().split('T')[0]);
-      setEndDate(data.deadline || '');
-      setIntensity(data.dedication || '');
-      if (storedSchedule) {
-        setSchedule(storedSchedule);
-        const parsed = parseScheduleToTable(storedSchedule);
-        setTableData(parsed);
-        setChecked(parsed.map(day => day.tasks.map(() => false)));
-      } else if (data.objective && data.deadline && data.dedication) {
-        setLoading(true);
-        generateSchedule(data.objective, new Date().toISOString().split('T')[0], data.deadline, data.dedication)
-          .then(result => {
-            setSchedule(result);
-            const parsed = parseScheduleToTable(result);
-            setTableData(parsed);
-            setChecked(parsed.map(day => day.tasks.map(() => false)));
-            localStorage.setItem('scheduleData', result); // Save to localStorage
-          })
-          .finally(() => setLoading(false));
-      }
+  const stored = localStorage.getItem('goalData');
+  const storedSchedule = localStorage.getItem('scheduleData');
+  const storedMeta = localStorage.getItem('scheduleMeta');
+  if (stored) {
+    const data = JSON.parse(stored);
+    setGoal(data.objective || '');
+    setStartDate(new Date().toISOString().split('T')[0]);
+    setEndDate(data.deadline || '');
+    setIntensity(data.dedication || '');
+
+    // Compare meta
+    const meta = JSON.stringify({
+      objective: data.objective,
+      deadline: data.deadline,
+      dedication: data.dedication,
+    });
+
+    if (storedSchedule && storedMeta === meta) {
+      setSchedule(storedSchedule);
+      const parsed = parseScheduleToTable(storedSchedule);
+      setTableData(parsed);
+      setChecked(parsed.map(day => day.tasks.map(() => false)));
+    } else if (data.objective && data.deadline && data.dedication) {
+      setLoading(true);
+      generateSchedule(data.objective, new Date().toISOString().split('T')[0], data.deadline, data.dedication)
+        .then(result => {
+          setSchedule(result);
+          const parsed = parseScheduleToTable(result);
+          setTableData(parsed);
+          setChecked(parsed.map(day => day.tasks.map(() => false)));
+          localStorage.setItem('scheduleData', result); // Save to localStorage
+          localStorage.setItem('scheduleMeta', meta);   // Save meta
+        })
+        .finally(() => setLoading(false));
     }
-  }, []);
+  }
+}, []);
 
   // Get all unique dates for columns
   const allDates = tableData.map(row => row.date);
@@ -95,6 +105,27 @@ const ScheduleGenerator: React.FC = () => {
           {/* <h3><b>Schedule:</b></h3>
           <pre>{schedule}</pre> */}
           <div style={{ height: '24px' }} />
+
+          <button
+            onClick={() => {
+              localStorage.removeItem('scheduleData');
+              localStorage.removeItem('scheduleMeta');
+              window.location.reload(); // Or trigger a state update if you want a smoother UX
+            }}
+            style={{
+              marginBottom: 24,
+              padding: '8px 20px',
+              background: '#2196f3',
+              color: '#fff',
+              border: 'none',
+              borderRadius: '6px',
+              fontWeight: 600,
+              cursor: 'pointer'
+            }}
+          >
+            Regenerate Schedule
+          </button>
+
           <h3><b>Schedule Table:</b></h3>
           {tableData.length > 0 ? (
             <div style={{ width: '100%', overflowX: 'auto' }}>

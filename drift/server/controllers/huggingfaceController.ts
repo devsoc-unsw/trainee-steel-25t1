@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { InferenceClient } from "@huggingface/inference";
+import Schedule from '../models/Schedule';
 
 const HF_API_TOKEN = process.env.HF_API_TOKEN || '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';
 
@@ -75,6 +76,17 @@ Wednesday, May 28|Complete first draft|Peer review;
     const schedule = thinkEndIndex !== -1
       ? rawOutput.slice(thinkEndIndex + '</think>'.length).trim()
       : rawOutput.trim();
+
+
+    // Save to MongoDB
+    await Schedule.create({
+      userId: req.user?._id,
+      goal,
+      startDate: todayDate,
+      endDate,
+      intensity,
+      rawSchedule: schedule
+    });
 
     res.json({ schedule });
 
