@@ -339,9 +339,25 @@ const Dashboard = () => {
                           name="deadline"
                           value={formData.deadline}
                           onChange={handleChange}
-                          min={new Date().toISOString().split('T')[0]} 
-                          className="w-full px-5 py-4 rounded-md bg-drift-blue/40 text-white focus:outline-none focus:ring-2 focus:ring-drift-blue focus:border-drift-blue hover:bg-drift-blue/60 transition-colors text-lg
-                                   [&::-webkit-calendar-picker-indicator]:filter [&::-webkit-calendar-picker-indicator]:invert [&::-webkit-calendar-picker-indicator]:cursor-pointer"
+                          min={new Date().toISOString().split('T')[0]}
+                          max={new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]}
+                          onKeyDown={(e) => e.preventDefault()}
+                          className="w-full px-6 py-5 rounded-md bg-white/20 backdrop-blur-sm text-white 
+                                    focus:outline-none focus:ring-2 focus:ring-white/50 
+                                    border border-white/30 hover:bg-white/30 transition-colors text-lg
+                                    cursor-pointer
+                                    [&::-webkit-calendar-picker-indicator]:bg-white 
+                                    [&::-webkit-calendar-picker-indicator]:p-0
+                                    [&::-webkit-calendar-picker-indicator]:filter 
+                                    [&::-webkit-calendar-picker-indicator]:invert
+                                    [&::-webkit-calendar-picker-indicator]:hover:cursor-pointer
+                                    [&::-webkit-datetime-edit-year-field]:text-white
+                                    [&::-webkit-datetime-edit-month-field]:text-white
+                                    [&::-webkit-datetime-edit-day-field]:text-white
+                                    [&::-webkit-datetime-edit-text]:text-white
+                                    [&::-webkit-calendar-picker]:scale-1000
+                                    [&::-webkit-calendar-picker]:transform
+                                    [&::-webkit-calendar-picker]:origin-top-left"
                         />
                       </div>
 
