@@ -202,8 +202,7 @@ const Dashboard = () => {
 
   const navItems = [
     { name: "Dashboard", icon: Home, path: "/dashboard" },
-    { name: "Goals", icon: Target, path: "/dashboard/goals" },
-    { name: "Calendar", icon: Calendar, path: "/dashboard/calendar" },
+    { name: "Calendar", icon: Calendar, path: "/schedule" },
     { name: "Achievements", icon: Trophy, path: "/dashboard/achievements" },
     { name: "Settings", icon: Settings, path: "/dashboard/settings" },
   ]
