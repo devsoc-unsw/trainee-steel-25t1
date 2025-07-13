@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import { InferenceClient } from "@huggingface/inference";
 import Schedule from "../models/Schedule";
 
-const HF_API_TOKEN = process.env.HF_API_TOKEN || "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";
+const HF_API_TOKEN = process.env.HF_API_TOKEN || "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";
 
 const client = new InferenceClient(HF_API_TOKEN);
 

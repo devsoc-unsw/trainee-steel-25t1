@@ -3,6 +3,7 @@ import { Target, Camera, X, Upload } from 'lucide-react';
 import { generateSchedule } from '../services/huggingfaceService';
 import { createAchievement, createAchievementWithImages } from '../services/achievementService';
 import DriftLogo from '../assets/drift_logo.svg';
+import { useNavigate } from "react-router-dom";
 
 // Beautiful Loading Component
 const DriftLoadingScreen: React.FC = () => {
@@ -59,6 +60,8 @@ const DriftLoadingScreen: React.FC = () => {
 };
 
 const ScheduleGenerator: React.FC = () => {
+  const navigate = useNavigate();
+
   const [goal, setGoal] = useState('');
   const [goalName, setGoalName] = useState('');
   const [startDate, setStartDate] = useState('');
@@ -406,9 +409,20 @@ const ScheduleGenerator: React.FC = () => {
         {tableData.length > 0 ? (
           <div className="bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/20">
             <h2 className="text-2xl font-bold text-white mb-6 text-center">Your Daily Action Plan</h2>
-            
-            <div className="overflow-x-auto">
-              <table className="w-full min-w-[800px]">
+            <button
+              className="mb-4 ml-4 px-4 py-2 bg-drift-orange text-white rounded hover:bg-drift-pink transition"
+              onClick={() => navigate("/dashboard")}
+            >
+              Go Home
+            </button>
+            <button
+              className="mb-4 px-4 py-2 bg-drift-purple text-white rounded hover:bg-drift-blue transition"
+              onClick={() => setChecked(tableData.map(day => day.tasks.map(() => true)))}
+            >
+              Check All
+            </button>
+            <div className="overflow-x-auto drift-scrollbar">
+              <table className="w-full min-w-[7500px]">
                 <thead>
                   <tr>
                     {allDates.map(date => (
