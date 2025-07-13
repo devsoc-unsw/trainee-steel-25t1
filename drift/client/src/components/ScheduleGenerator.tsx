@@ -116,7 +116,7 @@ const ScheduleGenerator: React.FC = () => {
         setChecked(parsed.map(day => day.tasks.map(() => false)));
       } else if (data.objective && data.deadline && data.dedication) {
         setLoading(true);
-        generateSchedule(data.objective, new Date().toISOString().split('T')[0], data.deadline, data.dedication)
+        generateSchedule(data.objective, new Date().toISOString().split('T')[0], data.deadline, data.dedication, data.category)
           .then(result => {
             setSchedule(result);
             const parsed = parseScheduleToTable(result);
@@ -422,7 +422,7 @@ const ScheduleGenerator: React.FC = () => {
               Check All
             </button>
             <div className="overflow-x-auto drift-scrollbar">
-              <table className="w-full min-w-[7500px]">
+              <table className="w-full min-w-[2000px]">
                 <thead>
                   <tr>
                     {allDates.map(date => (

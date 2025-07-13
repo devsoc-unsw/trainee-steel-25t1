@@ -129,6 +129,7 @@ interface GoalFormData {
   deadline: string;
   dedication: string;
   goalName: string;
+  category: string;
 }
 
 const Dashboard = () => {
@@ -140,6 +141,7 @@ const Dashboard = () => {
     deadline: "",
     dedication: "",
     goalName: "",
+    category: "",
   })
   const navigate = useNavigate()
   const location = useLocation()
@@ -331,7 +333,32 @@ const Dashboard = () => {
                       </div>
 
                       <div className="space-y-5">
-                        <h2 className="text-2xl font-medium">3. When do you want to achieve this by?</h2>
+                        <h2 className="text-2xl font-medium">3. What type of goal is this?</h2>
+                        <select
+                          id="category"
+                          name="category"
+                          value={formData.category}
+                          onChange={handleChange}
+                          className="w-full px-5 py-4 rounded-md bg-white/20 backdrop-blur-sm text-white border border-white/30 focus:outline-none focus:ring-2 focus:ring-white/50 text-lg
+                                  appearance-none cursor-pointer
+                                  [&>option]:bg-drift-blue [&>option]:text-white [&>option]:py-2
+                                  hover:bg-white/30 transition-colors duration-200"
+                          style={{
+                            backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23ffffff' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`,
+                            backgroundPosition: 'right 1rem center',
+                            backgroundRepeat: 'no-repeat',
+                            backgroundSize: '1.5em 1.5em'
+                          }}
+                        >
+                          <option value="" className="bg-drift-blue text-white/70">Select a category</option>
+                          <option value="fitness" className="bg-drift-blue text-white">Fitness</option>
+                          <option value="study" className="bg-drift-blue text-white">Study</option>
+                          <option value="work" className="bg-drift-blue text-white">Work</option>
+                        </select>
+                      </div>
+
+                      <div className="space-y-5">
+                        <h2 className="text-2xl font-medium">4. When do you want to achieve this by?</h2>
                         <input
                           type="date"
                           id="deadline"
@@ -361,7 +388,7 @@ const Dashboard = () => {
                       </div>
 
                       <div className="space-y-5">
-                        <h2 className="text-2xl font-medium">4. How dedicated are you?</h2>
+                        <h2 className="text-2xl font-medium">5. How dedicated are you?</h2>
                         <select
                           id="dedication"
                           name="dedication"

@@ -6,7 +6,8 @@ export const generateSchedule = async (
   goal: string,
   startDate: string,
   endDate: string,
-  intensity: string
+  intensity: string,
+  category: string,
 ): Promise<string> => {
   try {
     const response = await axios.post(`${API_BASE_URL}/huggingface/schedule`, {
@@ -14,6 +15,7 @@ export const generateSchedule = async (
       startDate,
       endDate,
       intensity,
+      category,
     });
     return response.data.schedule;
   } catch (error) {
