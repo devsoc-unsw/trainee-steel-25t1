@@ -11,6 +11,7 @@ import Goals from "./Goals"
 import CalendarPage from "./CalendarPage"
 import SettingsPage from "./SettingsPage"
 import AchievementArchive from "./AchievementArchive"
+import InfoPage from "./InfoPage";
 
 // Simple FloatingBoat component
 const FloatingBoat = () => {
@@ -206,6 +207,7 @@ const Dashboard = () => {
     { name: "Dashboard", icon: Home, path: "/dashboard" },
     { name: "Calendar", icon: Calendar, path: "/schedule" },
     { name: "Achievements", icon: Trophy, path: "/dashboard/achievements" },
+    { name: "Info", icon: BarChart3, path: "/dashboard/info" },
     { name: "Settings", icon: Settings, path: "/dashboard/settings" },
   ]
 
@@ -433,6 +435,7 @@ const Dashboard = () => {
             <Route path="calendar" element={<CalendarPage />} />
             <Route path="achievements" element={<AchievementArchive />} />
             <Route path="settings" element={<SettingsPage />} />
+            <Route path="info" element={<InfoPage />} />
           </Routes>
         </main>
       </div>
