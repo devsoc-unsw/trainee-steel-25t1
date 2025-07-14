@@ -21,6 +21,9 @@
     "concurrently": "^8.0.1"
   },
   "dependencies": {
+    "@huggingface/inference": "^4.5.1",
+    "@langchain/community": "^0.3.48",
+    "@langchain/core": "^0.3.62",
     "lucide-react": "^0.509.0"
   }
 }
