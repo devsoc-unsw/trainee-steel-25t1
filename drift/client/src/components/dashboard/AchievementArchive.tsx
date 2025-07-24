@@ -441,7 +441,9 @@ const AchievementArchive: React.FC = () => {
               <div className="relative">
                 <div className="aspect-video bg-gray-100 flex items-center justify-center">
                   <img
-                    src={`http://localhost:5000/uploads/${selectedAchievement.images[currentImageIndex]}`}
+                    src={selectedAchievement.images[currentImageIndex]?.startsWith('http') 
+                      ? selectedAchievement.images[currentImageIndex] 
+                      : `${process.env.REACT_APP_API_URL || 'http://localhost:5000'}/uploads/${selectedAchievement.images[currentImageIndex]}`}
                     alt={`Achievement photo ${currentImageIndex + 1}`}
                     className="max-w-full max-h-full object-contain"
                     onError={(e) => {
@@ -481,7 +483,7 @@ const AchievementArchive: React.FC = () => {
               {selectedAchievement.images.length > 1 && (
                 <div className="p-4 border-t border-gray-200">
                   <div className="flex gap-2 overflow-x-auto">
-                    {selectedAchievement.images.map((image: string, index: number) => (
+                    {selectedAchievement.images.filter(image => image != null).map((image: string, index: number) => (
                       <button
                         key={index}
                         onClick={() => setCurrentImageIndex(index)}
@@ -490,7 +492,9 @@ const AchievementArchive: React.FC = () => {
                         }`}
                       >
                         <img
-                          src={`http://localhost:5000/uploads/${image}`}
+                          src={image?.startsWith('http') 
+                                ? image 
+                                : `${process.env.REACT_APP_API_URL || 'http://localhost:5000'}/uploads/${image}`}
                           alt={`Thumbnail ${index + 1}`}
                           className="w-full h-full object-cover"
                           onError={(e) => {
