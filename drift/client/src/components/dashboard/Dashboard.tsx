@@ -355,7 +355,8 @@ const Dashboard = () => {
                           <option value="" className="bg-drift-blue text-white/70">Select a category</option>
                           <option value="fitness" className="bg-drift-blue text-white">Fitness</option>
                           <option value="study" className="bg-drift-blue text-white">Study</option>
-                          <option value="work" className="bg-drift-blue text-white">Work</option>
+                          <option value="habit" className="bg-drift-blue text-white">Habit</option>
+                          <option value="life" className="bg-drift-blue text-white">Life</option>
                         </select>
                       </div>
 

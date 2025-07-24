@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { Target, Camera, X, Upload } from 'lucide-react';
 import { generateSchedule } from '../services/huggingfaceService';
 import { createAchievement, createAchievementWithImages } from '../services/achievementService';
@@ -61,6 +61,7 @@ const DriftLoadingScreen: React.FC = () => {
 
 const ScheduleGenerator: React.FC = () => {
   const navigate = useNavigate();
+  const scheduleInitiatedRef = useRef(false);
 
   const [goal, setGoal] = useState('');
   const [goalName, setGoalName] = useState('');
@@ -95,6 +96,7 @@ const ScheduleGenerator: React.FC = () => {
     const stored = localStorage.getItem('goalData');
     const storedSchedule = localStorage.getItem('scheduleData');
     const storedMeta = localStorage.getItem('scheduleMeta');
+    
     if (stored) {
       const data = JSON.parse(stored);
       setGoal(data.objective || '');
@@ -110,11 +112,14 @@ const ScheduleGenerator: React.FC = () => {
       });
 
       if (storedSchedule && storedMeta === meta) {
+        console.log('Using cached schedule');
         setSchedule(storedSchedule);
         const parsed = parseScheduleToTable(storedSchedule);
         setTableData(parsed);
         setChecked(parsed.map(day => day.tasks.map(() => false)));
-      } else if (data.objective && data.deadline && data.dedication) {
+      } else if (data.objective && data.deadline && data.dedication && !scheduleInitiatedRef.current) {
+        console.log('Generating new schedule - single call');
+        scheduleInitiatedRef.current = true;
         setLoading(true);
         generateSchedule(data.objective, new Date().toISOString().split('T')[0], data.deadline, data.dedication, data.category)
           .then(result => {
@@ -125,6 +130,7 @@ const ScheduleGenerator: React.FC = () => {
             localStorage.setItem('scheduleData', result);
             localStorage.setItem('scheduleMeta', meta);
           })
+          .catch(error => console.error('Schedule generation error:', error))
           .finally(() => setLoading(false));
       }
     }

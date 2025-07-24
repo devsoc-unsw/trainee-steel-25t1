@@ -2,6 +2,7 @@ import React from "react";
 import muscleLadderImg from "../../assets/muscle_ladder.jpg";
 import academicSuccessImg from "../../assets/academic_success.jpg";
 import sevenHabitsImg from "../../assets/seven_habits.jpg";
+import _48lopImg from "../../assets/48lop.jpg"
 
 const sources = [
   {
@@ -22,13 +23,19 @@ const sources = [
     image: sevenHabitsImg,
     description: "Timeless principles for personal and professional effectiveness.",
   },
+  {
+    category: "Life",
+    title: "The 48 Laws of Power - Robert Greene",
+    image: _48lopImg,
+    description: "The laws for attaining power in life, business, and more",
+  },
 ];
 
 
 const contributors = [
   "Tony Bui",
-  "Carlson Perez",
   "Vittorio Worang",
+  "Carlson Perez",
   "Adib Akbari",
   "Raj Bal",
   // Add more names as needed
