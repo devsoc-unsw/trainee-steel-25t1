@@ -36,7 +36,7 @@ export const generateSchedule = async (req: Request, res: Response) => {
   let knowledge = "";
   try {
     console.log("🔍 Starting RAG process...");
-    await addDocs();
+    // Only add docs if collection is empty (more efficient)
     const docs = await queryDocs(goal, category);
     knowledge = docs.map((doc: any) => doc.pageContent).join("\n");
     console.log("✅ RAG knowledge retrieved successfully");

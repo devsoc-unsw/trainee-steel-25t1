@@ -51,7 +51,18 @@ export async function testQdrantConnection(): Promise<boolean> {
   console.log("Test embedding:", testEmbedding);
   
   // Test Qdrant connection on startup
-  await testQdrantConnection();
+  const connectionOk = await testQdrantConnection();
+  
+  // Populate knowledge base on startup (only if empty)
+  if (connectionOk) {
+    try {
+      await addDocs();
+      console.log("📚 Knowledge base populated on startup");
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      console.log("📚 Knowledge base already exists or failed to populate:", errorMessage);
+    }
+  }
 })();
 
 // Export a promise that resolves to the vector store
@@ -106,15 +117,18 @@ export async function addDocs() {
 // Query documents
 export async function queryDocs(query: string, category: string) {
   const vectorStore = await vectorStorePromise;
-  const filter = {
-    must: [
-      {
-        key: "metadata.category",
-        match: { value: category }
-      }
-    ]
-  };
-  const results = await vectorStore.similaritySearch(query, 2, filter);
+  
+  // Get more results without category filter, then filter manually
+  const results = await vectorStore.similaritySearch(query, 6);
+  
+  // Filter results by category manually 
+  const filteredResults = results.filter(doc => 
+    doc.metadata?.category === category
+  ).slice(0, 2);
+  
+  // If no category matches, return top 2 general results
+  const finalResults = filteredResults.length > 0 ? filteredResults : results.slice(0, 2);
+  
   console.log("Relevant knowledge extracted")
-  return results;
+  return finalResults;
 }
