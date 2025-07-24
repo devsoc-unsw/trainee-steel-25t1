@@ -18,7 +18,7 @@ const sources = [
     description: "Strategies for effective studying, productivity, and career preparation.",
   },
   {
-    category: "Work",
+    category: "Habit",
     title: "The Seven Habits of Highly Effective People - Stephen Covey",
     image: sevenHabitsImg,
     description: "Timeless principles for personal and professional effectiveness.",
