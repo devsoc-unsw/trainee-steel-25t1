@@ -65,7 +65,12 @@ export const createAchievement = async (req: Request, res: Response) => {
     const images: string[] = [];
     if (req.files && Array.isArray(req.files)) {
       req.files.forEach((file: any) => {
-        images.push(file.filename);
+        // For S3 uploads, use file.location (full S3 URL)
+        // For local uploads, use file.filename
+        const imageUrl = file.location || file.filename;
+        if (imageUrl) {
+          images.push(imageUrl);
+        }
       });
     }
 

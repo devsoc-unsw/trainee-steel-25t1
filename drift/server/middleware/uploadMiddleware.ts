@@ -1,31 +1,36 @@
 import multer from 'multer';
+import multerS3 from 'multer-s3';
+import { S3Client } from '@aws-sdk/client-s3';
 import path from 'path';
-import fs from 'fs';
 
-// Ensure uploads directory exists
-const uploadsDir = path.join(__dirname, '../uploads');
-if (!fs.existsSync(uploadsDir)) {
-  fs.mkdirSync(uploadsDir, { recursive: true });
-}
-
-// Configure multer for file storage
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, uploadsDir);
+// Configure AWS S3 Client
+const s3Client = new S3Client({
+  region: process.env.AWS_REGION || 'us-east-1',
+  credentials: {
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
   },
-  filename: (req, file, cb) => {
+});
+
+// Configure multer for S3 storage
+const storage = multerS3({
+  s3: s3Client,
+  bucket: process.env.S3_BUCKET_NAME!,
+  key: (req: Express.Request, file: Express.Multer.File, cb: (error: any, key?: string) => void) => {
     // Generate unique filename with timestamp
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
-  }
+    const fileName = `images/${uniqueSuffix}${path.extname(file.originalname)}`;
+    cb(null, fileName);
+  },
+  contentType: multerS3.AUTO_CONTENT_TYPE,
 });
 
 // File filter to only allow images
-const fileFilter = (req: any, file: any, cb: any) => {
+const fileFilter = (req: Express.Request, file: Express.Multer.File, cb: multer.FileFilterCallback) => {
   if (file.mimetype.startsWith('image/')) {
     cb(null, true);
   } else {
-    cb(new Error('Only image files are allowed!'), false);
+    cb(new Error('Only image files are allowed!'));
   }
 };
 

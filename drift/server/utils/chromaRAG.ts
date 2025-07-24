@@ -7,19 +7,71 @@ const embeddings = new HuggingFaceTransformersEmbeddings({
   model: "Xenova/all-MiniLM-L6-v2",
 });
 
+// Test Qdrant Cloud connection
+export async function testQdrantConnection(): Promise<boolean> {
+  try {
+    const qdrantUrl = process.env.QDRANT_URL || "http://localhost:6333";
+    const qdrantKey = process.env.QDRANT_API_KEY;
+    
+    console.log("🔍 Testing Qdrant connection...");
+    console.log("URL:", qdrantUrl.substring(0, 30) + "...");
+    console.log("Has API Key:", qdrantKey ? "Yes" : "No");
+    
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+    };
+    
+    if (qdrantKey) {
+      headers['api-key'] = qdrantKey;
+    }
+    
+    const response = await fetch(`${qdrantUrl}/collections`, {
+      method: 'GET',
+      headers,
+      signal: AbortSignal.timeout(10000) // 10 second timeout
+    });
+    
+    if (response.ok) {
+      console.log("✅ Qdrant connection successful");
+      return true;
+    } else {
+      console.error(`❌ Qdrant responded with status: ${response.status}`);
+      const errorText = await response.text();
+      console.error("Error details:", errorText);
+      return false;
+    }
+  } catch (error: any) {
+    console.error("❌ Qdrant connection failed:", error.message);
+    return false;
+  }
+}
+
 (async () => {
   const testEmbedding = await embeddings.embedQuery("test");
   console.log("Test embedding:", testEmbedding);
+  
+  // Test Qdrant connection on startup
+  await testQdrantConnection();
 })();
 
 // Export a promise that resolves to the vector store
-export const vectorStorePromise = QdrantVectorStore.fromExistingCollection(
-  embeddings,
-  {
-    url: "http://localhost:6333",
-    collectionName: "drift-collection-qdrant",
+export const vectorStorePromise = (async () => {
+  try {
+    console.log("🚀 Initializing Qdrant vector store...");
+    return await QdrantVectorStore.fromDocuments(
+      [], // Start with empty documents
+      embeddings,
+      {
+        url: process.env.QDRANT_URL || "http://localhost:6333",
+        apiKey: process.env.QDRANT_API_KEY,
+        collectionName: "drift-collection-qdrant",
+      }
+    );
+  } catch (error) {
+    console.error("❌ Failed to initialize Qdrant vector store:", error);
+    throw error;
   }
-);
+})();
 
 
 // Add documents
