@@ -8,65 +8,18 @@ import 'dotenv/config';
 
 // const client = new InferenceClient(HUGGINGFACEHUB_API_KEY);
 
-async function enhanceGoal(originalGoal: string, category: string): Promise<string> {
-  const enhancementPrompt = `You are a goal enhancement specialist. Your task is to rewrite user goals to be more specific, actionable, and measurable.
+// Extract keywords from goal for better RAG retrieval
+async function extractKeywords(originalGoal: string, category: string): Promise<string> {
+  const keywordPrompt = `Extract 5 relevant keywords and synonyms from this goal for better search. Output ONLY comma-separated keywords.
 
-ENHANCEMENT RULES:
-1. Extract specific numbers, weights, timeframes, current state
-2. Add quantifiable metrics and measurements
-3. Include progression strategies relevant to the category
-4. Remove vague language like "I want to" and replace with specific targets
-5. Emphasize the core action/skill being developed
-6. Add context about experience level if mentioned
-7. Make the goal more compelling and focused
+  Examples:
+  "I want to sleep earlier" → sleep, rest, bedtime, routine, health
+  "I want to deadlift 300kg" → deadlift, strength, gym, powerlifting, training
+  "I want to learn Spanish" → Spanish, language, vocabulary, practice, fluency
+  "I want to get promoted" → promotion, career, leadership, skills, workplace
 
-CATEGORY-SPECIFIC ENHANCEMENTS:
-
-FITNESS GOALS:
-- Extract current weight/performance and target
-- Add specific exercise names and rep ranges
-- Include progression increments (e.g., "increase by 5kg weekly")
-- Mention technique focus and supporting exercises
-- Add nutrition/recovery considerations
-
-STUDY GOALS:
-- Specify exact skills, topics, or knowledge areas
-- Add measurable outcomes (test scores, certifications)
-- Include practice frequency and study methods
-- Mention specific resources or materials
-
-WORK GOALS:
-- Define specific skills, projects, or achievements
-- Add career progression metrics
-- Include networking and skill development
-- Mention timeline and measurable deliverables
-
-LIFE GOALS:
-- Quantify financial, health, or personal targets
-- Add specific habits and behaviors
-- Include tracking methods and milestones
-- Mention support systems or resources needed
-
-EXAMPLES:
-
-Original: "I want to deadlift 300kg, im currently at 270kg, quite expereinced"
-Enhanced: "Increase deadlift from current 270kg to 300kg target (30kg progression) over 12-16 weeks using advanced powerlifting techniques, focusing on sumo deadlift form refinement, progressive overload with 2.5-5kg weekly increases, accessory work for posterior chain strength, and optimized recovery protocols for experienced lifter"
-
-Original: "I want to learn Spanish fluently"
-Enhanced: "Achieve conversational Spanish fluency (B2 level) within 6 months through daily 45-minute practice sessions, focusing on speaking confidence with native speakers, mastering 2000+ vocabulary words, completing intermediate grammar structures, and passing DELE B2 certification exam"
-
-Original: "I want to get promoted at work"
-Enhanced: "Secure senior developer promotion within 8 months by demonstrating technical leadership on 3 major projects, mentoring 2 junior developers, improving code review skills, obtaining cloud certification, and building relationships with engineering management team"
-
-Original: "I want to save money for vacation"
-Enhanced: "Save $5000 for European vacation within 10 months by reducing monthly expenses by $300, increasing income through freelance work, tracking all spending via budgeting app, and maximizing high-yield savings account returns"
-
-USER GOAL TO ENHANCE:
-"${originalGoal}"
-
-CATEGORY: ${category}
-
-OUTPUT ONLY THE ENHANCED GOAL - NO EXPLANATIONS OR ADDITIONAL TEXT:`;
+  Goal: "${originalGoal}"
+  Keywords:`;
 
   try {
     const response = await fetch('http://127.0.0.1:11434/api/generate', {
@@ -75,54 +28,113 @@ OUTPUT ONLY THE ENHANCED GOAL - NO EXPLANATIONS OR ADDITIONAL TEXT:`;
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'deepseek-r1:1.5b',
-        prompt: enhancementPrompt,
+        model: 'gemma:2b',
+        prompt: keywordPrompt,
         stream: false,
         options: {
-          temperature: 0.4,
-          top_p: 0.6,
-          num_predict: 2000,
+          temperature: 0.3,
+          top_p: 0.5,
+          num_predict: 1000,
           stop: [],
           repeat_penalty: 1.1,
         }
-      })
+      }),
+      signal: AbortSignal.timeout(30000)
     });
 
     if (!response.ok) {
-      console.warn("Goal enhancement failed, using original goal");
-      return originalGoal;
+      return "";
     }
 
     const data = await response.json();
-    let enhancedGoal = data.response?.trim() || originalGoal;
+    let keywords = data.response || "";
     
-    // Filter out the <think> reasoning section (same as main schedule generation)
-    const thinkEndIndex = enhancedGoal.indexOf("</think>");
+    // console.log("🔍 RAW KEYWORD RESPONSE:", keywords);
+    
+    // First try to get content after </think>
+    const thinkEndIndex = keywords.indexOf("</think>");
     if (thinkEndIndex !== -1) {
-      enhancedGoal = enhancedGoal.slice(thinkEndIndex + "</think>".length).trim();
+      const afterThink = keywords.slice(thinkEndIndex + "</think>".length).trim();
+      if (afterThink && afterThink.length > 3) {
+        keywords = afterThink;
+      }
     }
     
-    // Clean up any remaining thinking artifacts
-    enhancedGoal = enhancedGoal
-      .replace(/^<think>[\s\S]*?<\/think>/g, '') // Remove any remaining think tags (using [\s\S] instead of . with s flag)
-      .replace(/^Alright[\s\S]*?vague\./g, '') // Remove thinking introductions
-      .replace(/^Let me[\s\S]*?enhance[\s\S]*?:/g, '') // Remove planning statements
+    // If we still don't have good keywords, extract from within <think> tags
+    if (!keywords || keywords.length < 5 || keywords.includes('<think>')) {
+      const thinkStartIndex = keywords.indexOf("<think>");
+      const thinkEndIdx = keywords.indexOf("</think>");
+      
+      if (thinkStartIndex !== -1 && thinkEndIdx !== -1) {
+        const thinkContent = keywords.slice(thinkStartIndex + "<think>".length, thinkEndIdx);
+        
+        // Look for keyword patterns within the thinking
+        const lines = thinkContent.split('\n');
+        for (const line of lines) {
+          const cleanLine = line.trim();
+          // Look for lines that contain comma-separated words (likely keywords)
+          if (cleanLine.includes(',') && cleanLine.split(',').length >= 3) {
+            // Check if it looks like keywords (no long sentences)
+            const words = cleanLine.split(',').map((w: string) => w.trim());
+            const avgWordLength = words.reduce((sum: number, word: string) => sum + word.split(' ').length, 0) / words.length;
+            if (avgWordLength <= 3) { // Average of 3 words or less per "keyword"
+              keywords = cleanLine;
+              break;
+            }
+          }
+        }
+      }
+    }
+    
+    // Final cleanup
+    keywords = keywords
+      .replace(/^<think>[\s\S]*?<\/think>/g, '') // Remove any remaining think tags
+      .replace(/OUTPUT ONLY KEYWORDS:/g, '')
+      .replace(/Keywords:/g, '')
+      .replace(/Output:/g, '')
+      .replace(/^.*?:/g, '') // Remove any prefix with colon
+      .replace(/^[^\w]*/g, '') // Remove leading non-word characters
       .trim();
+
+    // NEW: Convert bulleted/line-separated keywords to comma-separated
+    keywords = keywords
+      .split('\n')                           // Split by lines
+      .map((line: string) => line.trim())    // Trim each line
+      .filter((line: string) => line.length > 0) // Remove empty lines
+      .map((line: string) => {
+        // Remove bullet points and dashes
+        return line.replace(/^[-•*]\s*/, '').trim();
+      })
+      .join(', ');   
     
-    // If the result is empty or too short, fallback to original
-    if (!enhancedGoal || enhancedGoal.length < 20) {
-      enhancedGoal = originalGoal;
+    // If we still have thinking artifacts, try one more extraction
+    if (keywords.includes('<think>') || keywords.includes('</think>') || keywords.length < 5) {
+      // Look for comma-separated patterns anywhere in the original response
+      const allLines = data.response.split('\n');
+      for (const line of allLines) {
+        const cleanLine = line.trim();
+        if (cleanLine.includes(',') && 
+            !cleanLine.includes('<think>') && 
+            !cleanLine.includes('</think>') &&
+            !cleanLine.includes('Goal:') &&
+            cleanLine.length > 10 &&
+            cleanLine.length < 200) {
+          keywords = cleanLine;
+          break;
+        }
+      }
     }
+
+    keywords = keywords.replace(/\*+/g, '') // Remove asterisks
+    .replace(/[^\w\s,.\-()]/g, '') // Keep only letters, numbers, spaces, commas, periods, hyphens, parentheses
+    .replace(/\s+/g, ' ') // Normalize multiple spaces
+    .trim();
     
-    console.log("🎯 GOAL ENHANCEMENT:");
-    console.log("Original:", originalGoal);
-    console.log("Enhanced:", enhancedGoal);
-    console.log("========================");
-    
-    return enhancedGoal;
+    console.log("🔍 EXTRACTED KEYWORDS:", keywords);
+    return keywords;
   } catch (error) {
-    console.error("Goal enhancement error:", error);
-    return originalGoal; // Fallback to original goal
+    console.error("Keyword extraction error:", error);
+    return "";
   }
 }
 
@@ -135,9 +147,7 @@ export const generateSchedule = async (req: Request, res: Response) => {
     return res.status(400).json({ message: "All fields are required" });
   }
 
-  // STEP 1: Enhance the goal to be more specific and actionable
-  console.log(`[${requestId}] Enhancing goal...`);
-  const enhancedGoal = await enhanceGoal(goal, category);
+  
 
   // Override startDate to today (YYYY-MM-DD)
   const todayDate = new Date().toISOString().split("T")[0];
@@ -146,6 +156,13 @@ export const generateSchedule = async (req: Request, res: Response) => {
   const start = new Date(todayDate);
   const end = new Date(endDate);
   const totalDays = Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+
+  // Extract keywords for better RAG retrieval
+  console.log(`[${requestId}] Extracting keywords...`);
+  const keywords = await extractKeywords(goal, category);
+
+  // Create enhanced goal by appending keywords
+  const enhancedGoal = keywords ? `${goal} (${keywords})` : goal;
 
   // Generate list of dates to ensure model covers all days
   const dateList = [];
@@ -158,101 +175,53 @@ export const generateSchedule = async (req: Request, res: Response) => {
     dateList.push(`${dayName} ${monthName} ${dayNumber}`);
   }
 
-  // STEP 2: Use enhanced goal for RAG and schedule generation
+  // Use enhanced goal (goal + keywords) for RAG and schedule generation
   console.log(`[${requestId}] Generating schedule with enhanced goal...`);
   await addDocs();
   const docs = await queryDocs(enhancedGoal, category); // Use enhanced goal for better RAG results
   const rawKnowledge = docs.map((doc: any) => doc.pageContent).join("\n");
-  const knowledge = rawKnowledge.length > 800 ? rawKnowledge.substring(0, 800) + "..." : rawKnowledge;
+  const knowledge = rawKnowledge.length > 400 ? rawKnowledge.substring(0, 400) + "..." : rawKnowledge;
 
-  const prompt = `OUTPUT FORMAT OVERRIDE: You are a schedule generator. Output ONLY schedule lines in the exact format shown. No other text allowed.
+  const prompt = `Generate a ${totalDays}-day schedule. Output ONLY schedule lines in this EXACT format:
 
-  
-  CORRECT FORMAT RULES:
-  - DayOfWeek MonthName DayNumber|task1|task2|task3;###
-  - Each task must be specific and actionable
-  - Include exact quantities, numbers, measurements
-  - Use action verbs: Eat, Consume, Track, Complete, Perform, Practice, Write, etc.
-  - Each line MUST end with semicolon followed by ###
+DayOfWeek MonthName DayNumber|task1|task2|task3;###
 
-  WRONG FORMATS (DO NOT USE):
-  Monday, July 22|Review syllabus|Take practice quiz;
-  Mon Jul 22|Read about nutrition; Learn protein calculation;
-  Monday, July 22|Study muscle building;Complete exercises;
-  Mon Jul 22|Study muscle building;Take practice quiz|###;
+RULES:
+- Start immediately with first day
+- NO introductions, explanations, or extra text
+- Each line ends with ;###
+- ${intensity === 'casual' ? '2 tasks' : intensity === 'moderate' ? '3 tasks' : '4 tasks'} per day
+- Include specific quantities and numbers
 
-  STRICT RULES - NO EXCEPTIONS:
-  1. Start output immediately with first day
-  2. NO introductions, headers, explanations, notes, or concluding statements
-  3. NO markdown (**bold**, ###headers, etc.)
-  4. NO bullet points or dashes
-  5. NO week sections or groupings
-  6. Each line MUST end with semicolon followed by ###
-  7. Tasks based on intensity: Casual=2 tasks, Moderate=3 tasks, Intense=4 tasks
-  8. DayOfWeek MonthName DayNumber|task1|task2|task3;###
-  9. MUST generate exactly ${totalDays} consecutive days
-  10. MUST cover ALL dates from ${todayDate} to ${endDate}
-  11. BE PRACTICAL: Give direct actions to DO, not things to read or learn about
-  12. BE ACTIONABLE: Use implementation verbs like "Eat", "Calculate", "Consume", "Do", "Perform", "Track"
-  13. BE SPECIFIC: Include exact quantities, foods, exercises, measurements
-  14. FOCUS ON GOAL: All tasks must directly support the specific goal: "${enhancedGoal}"
-  15. NO GENERIC LEARNING: Don't assign reading, studying, or research tasks
+IMPORTANT: Do NOT think, reason, or explain. Give your best immediate answer.
 
-  FEW-SHOT EXAMPLES - LEARN FROM THESE INPUT-OUTPUT PAIRS:
-
-  EXAMPLE 1 - FITNESS CATEGORY:
-  Input: "I want to lose 10 pounds in 2 weeks" (fitness, moderate intensity)
-  Output:
-  Mon Jul 22|Eat 400g grilled chicken breast with steamed vegetables|Track calories in MyFitnessPal app for entire day|Complete 45-minute cardio workout at gym;###
-  Tue Jul 23|Consume 6 egg whites with spinach for breakfast|Weigh yourself and record weight in fitness journal|Perform 30 burpees followed by 20-minute walk;###
-
-  EXAMPLE 2 - STUDY CATEGORY:
-  Input: "I want to pass my computer science final exam" (study, intense intensity)
-  Output:
-  Wed Jul 24|Solve 15 algorithm problems from LeetCode medium difficulty|Create flashcards for 25 data structure definitions|Write code for binary search tree implementation|Review and debug your heap sort algorithm;###
-  Thu Jul 25|Complete 3 past exam papers under timed conditions|Memorize time complexities for 20 sorting algorithms|Build a working hash table from scratch in Python|Practice explaining recursion concepts out loud for 30 minutes;###
-
-  EXAMPLE 3 - WORK CATEGORY:
-  Input: "I want to get promoted to senior developer" (work, moderate intensity)
-  Output:
-  Fri Jul 26|Complete the user authentication feature for the main project|Send progress update email to your manager with specific achievements|Volunteer to mentor 2 junior developers on code review process;###
-  Sat Jul 27|Attend the Saturday tech meetup and network with 5 industry professionals|Update LinkedIn profile with your recent project accomplishments|Practice your presentation skills by recording a 10-minute technical talk;###
-
-  EXAMPLE 4 - LIFE CATEGORY:
-  Input: "I want to save $5000 for a vacation" (life, casual intensity)
-  Output:
-  Sun Jul 28|Transfer $50 to your vacation savings account|Cancel 2 unused subscriptions to save monthly costs;###
-  Mon Jul 29|Pack lunch instead of buying food and calculate money saved|Research and compare 3 high-yield savings accounts for better interest;###
-
-  EXAMPLE 5 - FITNESS CATEGORY:
-  Input: "I want to build muscle and gain weight" (fitness, intense intensity)
-  Output:
-  Tue Jul 30|Eat 200g lean ground beef with 300g rice and vegetables|Consume 500ml protein shake with banana and peanut butter|Perform 4 sets of 8 deadlifts with progressive weight increase|Track total calorie intake and aim for 3200+ calories today;###
-  Wed Jul 31|Consume 8 whole eggs with toast and avocado for breakfast|Do 5 sets of 6 squats focusing on proper form|Eat 150g almonds as snack between meals|Measure and record bicep and chest circumference;###
-
-  EXAMPLE 6 - STUDY CATEGORY:
-  Input: "I want to learn Spanish fluently" (study, moderate intensity)
-  Output:
-  Thu Aug 01|Practice Spanish conversation with native speaker for 30 minutes|Complete lesson 5 of Duolingo focusing on past tense verbs|Write 20 sentences using new vocabulary words in context;###
-  Fri Aug 02|Watch Spanish Netflix show with Spanish subtitles for 45 minutes|Create flashcards for 30 irregular Spanish verbs|Record yourself speaking Spanish for 10 minutes and analyze pronunciation;###
+Potentially Useful Knowledge, use if applicable: "${knowledge}"
 
 
-  YOUR TASK:
-  Enhanced Goal: ${enhancedGoal}
-  Category: ${category}
-  Start Date: ${todayDate}
-  End Date: ${endDate}
-  Intensity: ${intensity} (${intensity === 'casual' ? '2 tasks per day' : intensity === 'moderate' ? '3 tasks per day' : '4 tasks per day'})
-  Total Days: ${totalDays}
-  Knowledge: "${knowledge}"
+EXAMPLES:
 
-  REQUIRED DATES TO INCLUDE (${totalDays} days total):
-  ${dateList.join(', ')}
+Input: "Lose 10 pounds" (fitness, moderate)
+Required Dates: Mon Jul 22, Tue Jul 23
+Output:
+Mon Jul 22|Eat 400g chicken|Track calories|Do 45min cardio;###
+Tue Jul 23|Weigh yourself|Do 30 burpees|Walk 20 minutes;###
 
-  GENERATE EXACTLY ${totalDays} SCHEDULE LINES WITH ${intensity === 'casual' ? '2' : intensity === 'moderate' ? '3' : '4'} GOAL-SPECIFIC, PRACTICAL ACTIONS PER DAY
-  OUTPUT ONLY THE SCHEDULE LINES WITH ;### ENDINGS
-  VERIFY TASK COUNT: Each line must have ${intensity === 'casual' ? '2' : intensity === 'moderate' ? '3' : '4'} tasks separated by | symbols
-  BEGIN OUTPUT NOW:`
+Input: "Pass CS exam" (study, intense)
+Required Dates: Wed Jul 24
+Output:
+Wed Jul 24|Solve 15 problems|Make 25 flashcards|Code binary tree|Debug heap sort;###
+
+Input: "Save $5000" (life, casual)
+Required Dates: Sun Jul 28, Mon Jul 29
+Output:
+Sun Jul 28|Transfer $50 to savings|Cancel 2 subscriptions;###
+Mon Jul 29|Research savings accounts|Track expenses;###
+
+YOUR TASK:
+Generate exactly ${totalDays} lines with ${intensity === 'casual' ? '2 tasks' : intensity === 'moderate' ? '3 tasks' : '4 tasks'} each:
+Input: "${enhancedGoal}" (${category}, ${intensity} intensity)
+Required Dates: ${dateList.join(', ')}
+Output:`
 
   console.log(`[${requestId}] ===================== PROMPT =============================`);
   console.log(prompt);
@@ -265,7 +234,7 @@ export const generateSchedule = async (req: Request, res: Response) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'deepseek-r1:1.5b',
+        model: 'gemma:2b',
         prompt: prompt,
         stream: false,
         options: {
@@ -291,15 +260,49 @@ export const generateSchedule = async (req: Request, res: Response) => {
       ? rawOutput.slice(thinkEndIndex + "</think>".length).trim()
       : rawOutput.trim();
 
+
+    // console.log(schedule)
+
     // ONLY PROCESS LINES WITH ### MARKERS
     schedule = schedule
     .split('\n')
     .map((line: string) => line.trim())
     .filter((line: string) => line.includes('###')) // Only keep lines with ###
     .map((line: string) => {
+      line = line.replace(/^.*?(Mon|Tue|Wed|Thu|Fri|Sat|Sun)/g, '$1');
+
       // Remove ** prefix if present
       line = line.replace(/^\*\*/, '');
       line = line.replace(/\*\*$/, '');
+      
+      // NEW: Remove leading dashes, numbers, and bullets
+      line = line.replace(/^[-•*]\s*/, ''); // Remove leading dashes and bullets
+      line = line.replace(/^\d+\.\s*/, ''); // Remove leading numbers like "1. "
+      line = line.replace(/^\d+\s+/, ''); // Remove leading numbers like "1 "
+      line = line.replace(/^\(\d+\)\s*/, ''); // Remove leading numbers like "(1) "
+      
+      // NEW: Fix double pipes - replace || with |
+      line = line.replace(/\|\|+/g, '|'); // Replace multiple pipes with single pipe
+      
+      // NEW: Convert semicolons that should be pipes (between tasks) to pipes
+      // Pattern: ;DayOfWeek MonthName Day| indicates a semicolon that should be a pipe
+      line = line.replace(/;(Mon|Tue|Wed|Thu|Fri|Sat|Sun)\s+(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s+\d{1,2}\|/g, '|$1 $2 $3|');
+      
+      // NEW: Remove semicolons that are NOT the final semicolon before ###
+      // First, find the ### marker position
+      const hashIndex = line.indexOf('###');
+      if (hashIndex !== -1) {
+        // Split into content and ending (;### or ###)
+        const content = line.substring(0, hashIndex);
+        const ending = line.substring(hashIndex);
+        
+        // Remove all semicolons from content, then add back the final one
+        const cleanContent = content.replace(/;/g, '');
+        line = cleanContent + ';' + ending;
+      } else {
+        // If no ### found, just remove all semicolons for now
+        line = line.replace(/;/g, '');
+      }
       
       // Fix date abbreviations with regex
       line = line.replace(/^Monday,/g, 'Mon');
@@ -327,13 +330,40 @@ export const generateSchedule = async (req: Request, res: Response) => {
       // Clean up the line but keep the ### marker
       line = line.replace(/\|\s*;/g, ';');
       line = line.replace(/;\s*([^;]*);/g, '|$1;');
+      
+      // NEW: Fix incomplete lines (lines that end abruptly)
+      if (line.includes('|') && !line.includes(';###')) {
+        // If line has pipes but no proper ending, check if it's incomplete
+        const parts = line.split('|');
+        if (parts.length > 1 && parts[parts.length - 1].trim().length < 10) {
+          // Last part is too short, likely incomplete - remove it
+          parts.pop();
+          line = parts.join('|');
+        }
+      }
+      
       if (!line.includes(';###')) {
         // Ensure proper format with ;###
         line = line.replace(/;###/g, '').replace(/###/g, '');
         if (!line.endsWith(';')) line += ';';
         line += '###';
       }
+      
       return line;
+    })
+    .filter((line: string) => {
+      // NEW: Filter out incomplete or malformed lines
+      const parts = line.split('|');
+      
+      // Must have at least 2 parts (date + at least 1 task)
+      if (parts.length < 2) return false;
+      
+      // First part should look like a date (contains day and month)
+      const datePart = parts[0].trim();
+      const hasValidDate = /^(Mon|Tue|Wed|Thu|Fri|Sat|Sun)\s+(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s+\d{1,2}$/.test(datePart);
+      if (!hasValidDate) return false;
+      
+      return true;
     })
     .join('\n');
 
