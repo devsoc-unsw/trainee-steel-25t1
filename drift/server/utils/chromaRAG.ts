@@ -121,10 +121,17 @@ export async function queryDocs(query: string, category: string) {
   // Get more results without category filter, then filter manually
   const results = await vectorStore.similaritySearch(query, 6);
   
+  console.log(`🔍 RAG Debug - Query: "${query}", Category: "${category}"`);
+  console.log(`📋 Found ${results.length} total results`);
+  
   // Filter results by category manually 
-  const filteredResults = results.filter(doc => 
-    doc.metadata?.category === category
-  ).slice(0, 2);
+  const filteredResults = results.filter(doc => {
+    const docCategory = doc.metadata?.category;
+    console.log(`📄 Doc category: "${docCategory}" vs requested: "${category}"`);
+    return docCategory === category;
+  }).slice(0, 2);
+  
+  console.log(`✅ Filtered to ${filteredResults.length} category-specific results`);
   
   // If no category matches, return top 2 general results
   const finalResults = filteredResults.length > 0 ? filteredResults : results.slice(0, 2);

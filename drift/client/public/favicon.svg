@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg viewBox="450 335 140 105" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="sunset" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0" style="stop-color:#E27B58"/>
+      <stop offset="1" style="stop-color:#DE7783"/>
+    </linearGradient>
+  </defs>
+  <path d="M 461.633 412.282 L 569.777 412.282 L 556.259 427.282 L 475.151 427.282 L 461.633 412.282 Z" fill="url(#sunset)" stroke="black" stroke-linejoin="round" style="stroke-width: 5px;"/>
+  <rect x="512.925" y="343.109" width="5.78" height="69.83" fill="black" rx="3" ry="3"/>
+  <path d="M 509.982 350.665 C 489.885 370.665 476.183 390.665 467.048 405.665 L 509.982 405.665 L 509.982 350.665 Z" stroke-width="1" stroke-linejoin="round" style="fill: rgb(252, 187, 109); stroke: rgb(252, 187, 109);"/>
+  <path d="M 521.648 350.142 C 541.744 370.142 555.447 390.142 564.581 405.142 L 521.648 405.142 L 521.648 350.142 Z" stroke-width="1" stroke-linejoin="round" style="stroke: rgb(216, 115, 127); fill: rgb(216, 115, 127);"/>
+</svg>

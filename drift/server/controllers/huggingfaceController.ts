@@ -10,7 +10,10 @@ const client = new InferenceClient(HUGGINGFACEHUB_API_KEY);
 
 export const generateSchedule = async (req: Request, res: Response) => {
   const { goal, startDate, endDate, intensity, category } = req.body;
+  console.log(`📋 Schedule request received - Goal: "${goal}", Category: "${category}"`);
+  
   if (!goal || !startDate || !endDate || !intensity || !category) {
+    console.log(`❌ Missing fields - goal: ${!!goal}, startDate: ${!!startDate}, endDate: ${!!endDate}, intensity: ${!!intensity}, category: ${!!category}`);
     return res.status(400).json({ message: "All fields are required" });
   }
 
@@ -142,11 +145,14 @@ console.log("===================================================================
 
 
 
+    console.log(`✅ Schedule generated successfully, length: ${schedule.length} characters`);
+    console.log(`📤 Sending schedule response to frontend`);
     res.json({ schedule });
   } catch (error: any) {
-    console.error("Hugging Face API error:", error);
+    console.error("❌ Hugging Face API error:", error);
+    const errorMessage = error instanceof Error ? error.message : String(error);
     res
       .status(500)
-      .json({ message: "Hugging Face API error", error: error.message });
+      .json({ message: "Hugging Face API error", error: errorMessage });
   }
 };
