@@ -10,7 +10,7 @@ interface OceanWavesPlayerProps {
 const OceanWavesPlayer: React.FC<OceanWavesPlayerProps> = ({ 
   autoPlay = false, 
   volume = 0.3,
-  audioSrc = '/audio/ocean-waves-250310.mp3' 
+  audioSrc = '/audio/ocean-waves.mp3' 
 }) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentVolume, setCurrentVolume] = useState(volume);

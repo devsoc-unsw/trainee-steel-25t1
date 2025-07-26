@@ -4,6 +4,7 @@ import {
   Routes,
   Route,
   Navigate,
+  useLocation,
 } from "react-router-dom";
 import Home from "./components/Home";
 import Register from "./components/auth/Register";
@@ -11,6 +12,21 @@ import Login from "./components/auth/Login";
 import Dashboard from "./components/dashboard/Dashboard";
 import Schedule from "./components/ScheduleGenerator";
 import OceanWavesPlayer from "./components/OceanWavesPlayer";
+
+// Component to conditionally render music player
+const ConditionalMusicPlayer: React.FC = () => {
+  const location = useLocation();
+  
+  // Pages where music should NOT play
+  const noMusicPages = ['/', '/login', '/register'];
+  
+  // Don't show music player on landing, login, or register pages
+  if (noMusicPages.includes(location.pathname)) {
+    return null;
+  }
+  
+  return <OceanWavesPlayer volume={0.2} />;
+};
 
 const App: React.FC = () => {
   return (
@@ -23,7 +39,7 @@ const App: React.FC = () => {
         <Route path="/schedule" element={<Schedule />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
-      <OceanWavesPlayer volume={0.2} />
+      <ConditionalMusicPlayer />
     </Router>
   );
 };

@@ -137,6 +137,7 @@ const Dashboard = () => {
   const [username, setUsername] = useState("")
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [profileDropdownOpen, setProfileDropdownOpen] = useState(false)
   const [formData, setFormData] = useState<GoalFormData>({
     objective: "",
     deadline: "",
@@ -162,9 +163,21 @@ const Dashboard = () => {
     const handleResize = () => {
       if (window.innerWidth < 768) setMobileMenuOpen(false)
     }
+    
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as Element
+      if (profileDropdownOpen && !target.closest('.profile-dropdown')) {
+        setProfileDropdownOpen(false)
+      }
+    }
+    
     window.addEventListener("resize", handleResize)
-    return () => window.removeEventListener("resize", handleResize)
-  }, [navigate])
+    document.addEventListener("mousedown", handleClickOutside)
+    return () => {
+      window.removeEventListener("resize", handleResize)
+      document.removeEventListener("mousedown", handleClickOutside)
+    }
+  }, [navigate, profileDropdownOpen])
 
   const handleLogout = () => {
     localStorage.removeItem("userToken")
@@ -179,6 +192,8 @@ const Dashboard = () => {
   }
 
   const toggleMobileMenu = () => setMobileMenuOpen(!mobileMenuOpen)
+
+  const toggleProfileDropdown = () => setProfileDropdownOpen(!profileDropdownOpen)
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target
@@ -262,19 +277,24 @@ const Dashboard = () => {
         </nav>
         <div className={`border-t border-drift-purple/30 p-4 ${sidebarCollapsed ? "flex justify-center" : ""}`}>
           {sidebarCollapsed ? (
-            <div className="group relative">
-              <div className="h-10 w-10 cursor-pointer rounded-full bg-drift-mauve flex items-center justify-center text-white font-medium shadow-md">
+            <div className="relative profile-dropdown">
+              <button
+                onClick={toggleProfileDropdown}
+                className="h-10 w-10 cursor-pointer rounded-full bg-drift-mauve flex items-center justify-center text-white font-medium shadow-md hover:bg-drift-mauve/80 transition-colors"
+              >
                 {username.charAt(0).toUpperCase()}
-              </div>
-              <div className="absolute bottom-full left-1/2 mb-2 hidden -translate-x-1/2 transform rounded-md bg-drift-purple px-3 py-2 text-xs text-white shadow-md group-hover:block">
-                <p>{username}</p>
-                <button
-                  onClick={handleLogout}
-                  className="mt-1 flex items-center text-xs text-gray-300 hover:text-white"
-                >
-                  <LogOut className="mr-1 h-3 w-3" /> Logout
-                </button>
-              </div>
+              </button>
+              {profileDropdownOpen && (
+                <div className="absolute bottom-full left-1/2 mb-2 -translate-x-1/2 transform rounded-md bg-drift-purple px-3 py-2 text-xs text-white shadow-lg border border-white/20 min-w-[120px]">
+                  <p className="mb-2 text-center">{username}</p>
+                  <button
+                    onClick={handleLogout}
+                    className="w-full flex items-center justify-center text-xs text-gray-300 hover:text-white px-2 py-1 rounded hover:bg-white/10 transition-colors"
+                  >
+                    <LogOut className="mr-1 h-3 w-3" /> Logout
+                  </button>
+                </div>
+              )}
             </div>
           ) : (
             <div className="flex items-center">

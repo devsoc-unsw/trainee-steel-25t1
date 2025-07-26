@@ -5,6 +5,9 @@ module.exports = {
   ],
   theme: {
     extend: {
+      screens: {
+        'xs': '475px',
+      },
       colors: {
         drift: {
           orange: '#FCBB6D',

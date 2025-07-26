@@ -24,16 +24,6 @@ const sources = [
   },
 ];
 
-
-const contributors = [
-  "Tony Bui",
-  "Carlson Perez",
-  "Vittorio Worang",
-  "Adib Akbari",
-  "Raj Bal",
-  // Add more names as needed
-];
-
 const InfoPage: React.FC = () => (
   <div className="max-w-3xl mx-auto py-8 px-4 text-white">
     <h1 className="text-3xl font-bold mb-8">Knowledge Sources by Category</h1>
@@ -48,14 +38,6 @@ const InfoPage: React.FC = () => (
           </div>
         </div>
       ))}
-    </div>
-    <div className="mt-12 border-t border-white/20 pt-8">
-      <h2 className="text-2xl font-semibold mb-2">Project Contributors</h2>
-      <ul className="list-disc list-inside text-white/80">
-        {contributors.map((name) => (
-          <li key={name}>{name}</li>
-        ))}
-      </ul>
     </div>
   </div>
 );
